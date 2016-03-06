@@ -1,0 +1,3 @@
+{"ScriptsPath":"/Path/To/Your/Scripts/Folder",
+ "LocalDBFile":"./local.json",
+ "LogFile":"./duck.log"}
