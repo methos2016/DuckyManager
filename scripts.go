@@ -67,7 +67,11 @@ func SearchLocal(path string, scripts *[]Script) (count uint, err error) {
 // CheckLocal will check the local database of scripts.
 // Will create a new one if it doesn't exists.
 // Returns all the loaded data, plus info about the changes made
-func CheckLocal(path string, scriptsPath string) (scripts []Script, totalValid uint, deleted uint, modified uint, newOnes uint, err error) {
+func CheckLocal(path, scriptsPath string) (
+	scripts []Script,
+	totalValid, deleted, modified, newOnes uint,
+	err error,
+) {
 
 	// Read / create database
 	f, err := ioutil.ReadFile(path)
@@ -165,7 +169,7 @@ func (s *Script) GetName() string {
 }
 
 // CheckIntegrity will load the file from the path and check it against known data.
-func (s *Script) CheckIntegrity() (fileErr bool, hashEq bool, h string) {
+func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 	h, err := HashFile(s.Path)
 	if err == nil {
 		fileErr = false

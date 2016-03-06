@@ -7,7 +7,10 @@ import (
 
 const coldef = termbox.ColorDefault
 
-func guiPrint(x, y, w int, fg, bg termbox.Attribute, msg string) {
+func guiPrint(x, y, w int,
+	fg, bg termbox.Attribute,
+	msg string,
+) {
 	for _, c := range msg {
 		if x == w {
 			termbox.SetCell(x-1, y, '→', fg, bg)
@@ -28,7 +31,9 @@ func redrawMain(positionUpper, position int, scripts []Script) error {
 	return termbox.Sync()
 }
 
-func listScripts(totalW, totalH, positionUpper, position int, scripts []Script) {
+func listScripts(totalW, totalH, positionUpper, position int,
+	scripts []Script,
+) {
 
 	w := totalW * 2 / 3
 	h := totalH
@@ -77,7 +82,11 @@ func sidebarDraw(totalW, totalH, position int, scripts []Script) {
 	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, scripts[position].Desc)
 }
 
-func printSideInfo(x, y, w, h int, title string, msg string) (line int) {
+func printSideInfo(x, y, w, h int,
+	title string,
+	msg string,
+) (line int) {
+
 	dotLen := len(": ")
 	titleLen := len(title)
 
@@ -124,7 +133,11 @@ func printSideInfo(x, y, w, h int, title string, msg string) (line int) {
 	return
 }
 
-func drawBox(x, y, w, h int, title string, titleEffect, titleBGEffect termbox.Attribute) {
+func drawBox(x, y, w, h int,
+	title string,
+	titleEffect, titleBGEffect termbox.Attribute,
+) {
+
 	for i := 0; i < h; i++ {
 		termbox.SetCell(x, y+i, '│', coldef, coldef)
 		termbox.SetCell(w, y+i, '│', coldef, coldef)
@@ -170,7 +183,11 @@ func printEditBox(eB editBox, editBoxWidth int, title string) {
 	termbox.Flush()
 }
 
-func printOptionsBox(maxOptionsLine, selected int, options []string, title string) {
+func printOptionsBox(maxOptionsLine, selected int,
+	options []string,
+	title string,
+) {
+
 	w, h := termbox.Size()
 
 	midy := h / 2

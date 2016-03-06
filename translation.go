@@ -27,25 +27,24 @@ type Strings struct {
 	SidebarTitle     string
 	SidebarBy        string
 	SidebarTags      string
-
-	SidebarDesc    string
-	ErrTermboxInit string
-	ErrDrawing     string
-	ErrEvent       string
-	TooLong        string
-	Any            string
-	NoMatch        string
-	AcceptEnter    string
+	SidebarDesc      string
+	ErrTermboxInit   string
+	ErrDrawing       string
+	ErrEvent         string
+	TooLong          string
+	Any              string
+	NoMatch          string
+	AcceptEnter      string
 }
 
 // Meant to be called on init
 func parseLang() error {
-	// Parse language files
 	files, err := ioutil.ReadDir(languageDir + "/")
 	if err != nil {
 		return errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
 	}
 
+	// Needs a language file
 	if len(os.Args) != 2 || os.Args[1] == "" {
 		fmt.Println("Usage: DuckyManager <lang>")
 		fmt.Println("Your avaliable languages:")
