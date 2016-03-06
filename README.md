@@ -1,5 +1,9 @@
 # DuckyManager
 A CLI to manage the scripts of the Rubber Ducky
+![DuckyMnager image](http://i.imgur.com/M19lPCx.jpg)
+##### Wallpaper not included!
+
+
 
 Current avaliable languages:
 - English
