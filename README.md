@@ -46,27 +46,33 @@ You can:
 
 
 ## Dev 3
+
 #### New Functionalities
 - Users can now create their own repositories, and others can list them to be used
 - Automatic encoding and deploying system (for any keymap)
 
 
 ## Dev 4
+
 #### New Functionalities
 - Users now can request for their scripts to be added onto the official repository.
 - Firmware repositories and automated flashing
 
 
 ## Alpha
+
 #### New functionalities
 - Script setup helper (auto-fill variables in the script)
+
 #### Other
 - User and contributors documentation added.
 
 
 ## Beta
+
 #### New functionalities
 - Automatic update detection
+
 #### Other
 - Fix of bugs from Alpha
 
