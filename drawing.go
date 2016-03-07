@@ -22,7 +22,9 @@ func guiPrint(x, y, w int,
 }
 
 func redrawMain(positionUpper, position int, scripts []Script) error {
-	termbox.Clear(coldef, coldef)
+	if err := termbox.Clear(coldef, coldef); err != nil {
+		return err
+	}
 
 	w, h := termbox.Size()
 	sidebarDraw(w, h, position, scripts)
@@ -53,7 +55,7 @@ func listScripts(totalW, totalH, positionUpper, position int,
 		i++
 	}
 
-	scripts = SortScripts(scripts)
+	SortScripts(scripts)
 }
 
 func sidebarDraw(totalW, totalH, position int, scripts []Script) {
@@ -136,7 +138,7 @@ func printSideInfo(x, y, w, h int,
 func drawBox(x, y, w, h int,
 	title string,
 	titleEffect, titleBGEffect termbox.Attribute,
-) {
+) (err error) {
 
 	for i := 0; i < h; i++ {
 		termbox.SetCell(x, y+i, '│', coldef, coldef)
@@ -154,10 +156,11 @@ func drawBox(x, y, w, h int,
 
 	guiPrint(x+1, y, w, titleEffect, titleBGEffect, title)
 
-	termbox.Flush()
+	err = termbox.Flush()
+	return
 }
 
-func printEditBox(eB editBox, editBoxWidth int, title string) {
+func printEditBox(eB editBox, editBoxWidth int, title string) (err error) {
 
 	w, h := termbox.Size()
 
@@ -180,13 +183,16 @@ func printEditBox(eB editBox, editBoxWidth int, title string) {
 	eB.Draw(midx, midy, editBoxWidth, 1)
 	termbox.SetCursor(midx+eB.CursorX(), midy)
 
-	termbox.Flush()
+	err = termbox.Flush()
+	return
 }
+
+/* To be used...
 
 func printOptionsBox(maxOptionsLine, selected int,
 	options []string,
 	title string,
-) {
+) (err error) {
 
 	w, h := termbox.Size()
 
@@ -233,20 +239,27 @@ func printOptionsBox(maxOptionsLine, selected int,
 		}
 	}
 
-	drawBox(midx-maxW/2, midy-nL2, maxW, midy+nL2, title, termbox.AttrBold, coldef)
-}
+	err = drawBox(midx-maxW/2, midy-nL2, maxW, midy+nL2, title, termbox.AttrBold, coldef)
+	return
+} */
 
-func showErrorMsg(msg string) {
+func showErrorMsg(msg string) (err error) {
 	w, h := termbox.Size()
 
 	midy := h / 2
 	midx := (w - len(msg)) / 2
 
-	termbox.Clear(coldef, coldef)
+	if err = termbox.Clear(coldef, coldef); err != nil {
+		return
+	}
 
 	guiPrint(midx, midy, w, termbox.ColorRed, coldef, msg)
 	guiPrint(midx, midy+2, w, termbox.AttrUnderline, coldef, translate.AcceptEnter)
-	termbox.Sync()
+	if err = termbox.Sync(); err != nil {
+		return
+	}
 
 	waitForEnter()
+
+	return
 }

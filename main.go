@@ -60,7 +60,11 @@ func main() {
 		l.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
 		os.Exit(errExitCode)
 	}
-	defer Save(config.LocalDBFile, scripts)
+	defer func() {
+		if err = Save(config.LocalDBFile, scripts); err != nil {
+			//TODO handle
+		}
+	}()
 
 	l.Println("[" + strconv.Itoa(int(valid)) + "] " + translate.Valid + " , " +
 		"[" + strconv.Itoa(int(deleted)) + "] " + translate.Deleted + " , " +
@@ -146,7 +150,11 @@ func mainLoop(positionUpper, position int, scripts []Script) {
 					switch ev.Ch {
 					case 's', 'S':
 
-						res := search(scripts)
+						res, err := search(scripts)
+						if err != nil {
+							//TODO Hnadle err
+						}
+
 						if len(res) != 0 {
 							saveOn = true
 
@@ -158,7 +166,10 @@ func mainLoop(positionUpper, position int, scripts []Script) {
 							position = 0
 							positionUpper = 0
 						} else {
-							showErrorMsg(translate.NoMatch)
+							err := showErrorMsg(translate.NoMatch)
+							if err != nil {
+								//TODO Hnadle err
+							}
 						}
 
 					case 'e', 'E':

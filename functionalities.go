@@ -6,7 +6,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-func search(scripts []Script) (res []Script) {
+func search(scripts []Script) (res []Script, err error) {
 
 	var eB editBox
 
@@ -18,7 +18,9 @@ func search(scripts []Script) (res []Script) {
 
 	for !done {
 		eB.text = []byte(values[currentValue])
-		printEditBox(eB, 30, titles[currentValue])
+		if err = printEditBox(eB, 30, titles[currentValue]); err != nil {
+			return
+		}
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
@@ -86,8 +88,8 @@ func search(scripts []Script) (res []Script) {
 
 		}
 	}
-
-	res = TrimRepeated(SortScripts(res))
+	SortScripts(res)
+	res = TrimRepeated(res)
 	return
 }
 
@@ -103,7 +105,9 @@ func edit(position int, scripts []Script) {
 
 	for !done {
 		eB.text = []byte(*values[currentValue])
-		printEditBox(eB, 30, titles[currentValue])
+		if err := printEditBox(eB, 30, titles[currentValue]); err != nil {
+			//TODO handle
+		}
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
@@ -160,7 +164,7 @@ func edit(position int, scripts []Script) {
 	// Update values of script
 	scripts[position] = script
 
-	scripts = SortScripts(scripts)
+	SortScripts(scripts)
 }
 
 func waitForEnter() {

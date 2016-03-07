@@ -27,9 +27,6 @@ type Script struct {
 	Hash string
 }
 
-// NewScript returns a new object of type Script
-func NewScript() *Script { return &Script{} }
-
 // SearchLocal will search on the path for valid scripts and load them onto the already loaded scripts
 func SearchLocal(path string, scripts *[]Script) (count uint, err error) {
 
@@ -80,12 +77,20 @@ func CheckLocal(path, scriptsPath string) (
 			return
 		}
 		// database does not exist, create
-		f2, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+		var f2 *os.File // to remove shadowing from err later
+
+		f2, err = os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 		if err != nil {
 			return scripts, totalValid, deleted, modified, newOnes, err
 		}
-		f2.WriteString("[{}]")
-		f2.Close()
+		_, err = f2.WriteString("[{}]")
+		if err != nil {
+			// TODO handle err
+		}
+		err = f2.Close()
+		if err != nil {
+			// TODO handle err
+		}
 
 		f, err = ioutil.ReadFile(path)
 		if err != nil {
@@ -146,7 +151,7 @@ func HashFile(path string) (h string, err error) {
 	if err != nil {
 		return
 	}
-	defer file.Close()
+	defer func() { err = file.Close() }()
 
 	hash := md5.New()
 	_, err = io.Copy(hash, file)
@@ -190,19 +195,21 @@ func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 func (s *Script) Equals(s2 Script) bool { return s.Hash == s2.Hash }
 
 // Save will save the data to the json database
-func Save(path string, scripts []Script) {
+func Save(path string, scripts []Script) (err error) {
 	b, err := json.Marshal(scripts)
 	if err != nil {
-		l.Println(err.Error())
 		return
 	}
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
-		l.Println(err.Error())
 		return
 	}
-	defer f.Close()
-	f.Write(b)
+	defer func() { err = f.Close() }()
+	if _, err = f.Write(b); err != nil {
+		return
+	}
+
+	return
 }
 
 /*** SORT FUNCTIONS ***/
@@ -223,10 +230,8 @@ func (s Scripts) Less(i, j int) bool {
 /*** END SORT FUNCTIONS***/
 
 // SortScripts sorts the slice based on name and path
-func SortScripts(scripts Scripts) []Script {
+func SortScripts(scripts Scripts) {
 	sort.Sort(scripts)
-
-	return scripts
 }
 
 // ListByName will return all scripts which contains the name on it
