@@ -1,4 +1,4 @@
-{"Version":"0.1",
+{"Version":"0.2",
 "CheckingLocal":"Checking local scripts...",
 "ErrClearScreen":"Couldn't clear the screen. Unrecognized OS?",
 "ErrOpeningConfig":"Couldn't open the config file",

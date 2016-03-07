@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 )
 
 // Strings holds each and every string on the program, allowing for easy translation
@@ -22,7 +21,6 @@ type Strings struct {
 	Modified         string
 	TermInputMode    string
 	TermOutputMode   string
-	MainLoop         string
 	NewScripts       string
 	SidebarTitle     string
 	SidebarBy        string
@@ -38,38 +36,9 @@ type Strings struct {
 }
 
 // Meant to be called on init
-func parseLang() error {
-	files, err := ioutil.ReadDir(languageDir + "/")
-	if err != nil {
-		return errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
-	}
+func parseLang(langFile string) error {
 
-	// Needs a language file
-	if len(os.Args) != 2 || os.Args[1] == "" {
-		fmt.Println("Usage: DuckyManager <lang>")
-		fmt.Println("Your avaliable languages:")
-
-		for _, f := range files {
-			tmpLang, err := ioutil.ReadFile(languageDir + "/" + f.Name())
-			if err != nil {
-				fmt.Println(errStr + f.Name() + " [Could not read]")
-
-			} else if err = json.Unmarshal(tmpLang, &translate); err == nil {
-				if translate.Version == languageVer {
-					fmt.Println(okStr + f.Name() + " [OK]")
-				} else {
-					fmt.Println(errStr + f.Name() + " [Outdated]")
-				}
-			} else {
-				fmt.Println(errStr + f.Name() + " [Corrupted]")
-			}
-		}
-
-		// So it returns an error and doesn't keep going on init
-		return errors.New("")
-	}
-
-	lang, err := ioutil.ReadFile(languageDir + "/" + os.Args[1])
+	lang, err := ioutil.ReadFile(languageDir + "/" + langFile)
 	if err != nil {
 		return errors.New(errStr + "Error opening language file: " + err.Error())
 	}
@@ -80,4 +49,38 @@ func parseLang() error {
 	}
 
 	return nil
+}
+
+func checkLangs(args []string, debug bool) (err error) {
+	files, err := ioutil.ReadDir(languageDir + "/")
+	if err != nil {
+		return errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
+	}
+
+	if len(args) != 2 || args[1] == "" {
+		err = errors.New("Incorrect args")
+
+		if !debug {
+			fmt.Println("Usage: DuckyManager <lang>")
+			fmt.Println("Your avaliable languages:")
+		}
+
+		for _, f := range files {
+			tmpLang, err := ioutil.ReadFile(languageDir + "/" + f.Name())
+			if err != nil && !debug {
+				fmt.Println(errStr + f.Name() + " [Could not read]")
+
+			} else if err = json.Unmarshal(tmpLang, &translate); err == nil && !debug {
+				if translate.Version == languageVer {
+					fmt.Println(okStr + f.Name() + " [OK]")
+				} else {
+					fmt.Println(errStr + f.Name() + " [Outdated]")
+				}
+			} else if !debug {
+				fmt.Println(errStr + f.Name() + " [Corrupted]")
+			}
+		}
+	}
+
+	return
 }

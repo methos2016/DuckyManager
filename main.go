@@ -11,10 +11,14 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-func init() {
-
+func main() {
 	// Load lang
-	if err := parseLang(); err != nil {
+	if err := checkLangs(os.Args, false); err != nil {
+		fmt.Println(err.Error())
+		os.Exit(errExitCode)
+	}
+
+	if err := parseLang(os.Args[1]); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(errExitCode)
 	}
@@ -42,10 +46,6 @@ func init() {
 	l = log.New(f, "", log.Ltime)
 
 	l.SetOutput(f)
-
-}
-
-func main() {
 
 	position, positionUpper := 0, 0
 
@@ -89,7 +89,6 @@ func mainLoop(positionUpper, position int, scripts []Script) {
 	var tmpPosition, tmpPositionUpper int
 	var tmpSave []Script
 	for {
-		l.Println(translate.MainLoop)
 
 		if err := redrawMain(positionUpper, position, scripts); err != nil {
 			l.Println(errStr + translate.ErrDrawing + ": " + err.Error())
