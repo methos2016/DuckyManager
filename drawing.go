@@ -5,8 +5,6 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-const coldef = termbox.ColorDefault
-
 func guiPrint(x, y, w int,
 	fg, bg termbox.Attribute,
 	msg string,
@@ -21,14 +19,15 @@ func guiPrint(x, y, w int,
 	}
 }
 
-func redrawMain(positionUpper, position int, scripts []Script) error {
+func redrawMain(currentState State) error {
 	if err := termbox.Clear(coldef, coldef); err != nil {
 		return err
 	}
 
 	w, h := termbox.Size()
-	sidebarDraw(w, h, position, scripts)
-	listScripts(w, h, positionUpper, position, scripts)
+	// TODO sidebar && lostScripts to use State struct
+	sidebarDraw(w, h, currentState.Position, currentState.Scripts)
+	listScripts(w, h, currentState.PositionUpper, currentState.Position, currentState.Scripts)
 
 	return termbox.Sync()
 }
@@ -135,31 +134,6 @@ func printSideInfo(x, y, w, h int,
 	return
 }
 
-func drawBox(x, y, w, h int,
-	title string,
-	titleEffect, titleBGEffect termbox.Attribute,
-) (err error) {
-
-	for i := 0; i < h; i++ {
-		termbox.SetCell(x, y+i, '│', coldef, coldef)
-		termbox.SetCell(w, y+i, '│', coldef, coldef)
-	}
-
-	fill(x, y, w, 1, termbox.Cell{Ch: '─'})
-	fill(x, h, w, 1, termbox.Cell{Ch: '─'})
-
-	termbox.SetCell(x, y, '┌', coldef, coldef)
-	termbox.SetCell(x, h, '└', coldef, coldef)
-
-	termbox.SetCell(w, y, '┐', coldef, coldef)
-	termbox.SetCell(w, h, '┘', coldef, coldef)
-
-	guiPrint(x+1, y, w, titleEffect, titleBGEffect, title)
-
-	err = termbox.Flush()
-	return
-}
-
 func printEditBox(eB editBox, editBoxWidth int, title string) (err error) {
 
 	w, h := termbox.Size()
@@ -187,7 +161,54 @@ func printEditBox(eB editBox, editBoxWidth int, title string) (err error) {
 	return
 }
 
+func showErrorMsg(msg string) (err error) {
+	w, h := termbox.Size()
+
+	midy := h / 2
+	midx := (w - len(msg)) / 2
+
+	if err = termbox.Clear(coldef, coldef); err != nil {
+		return
+	}
+
+	guiPrint(midx, midy, w, termbox.ColorRed, coldef, msg)
+	guiPrint(midx, midy+2, w, termbox.AttrUnderline, coldef, translate.AcceptEnter)
+	if err = termbox.Sync(); err != nil {
+		return
+	}
+
+	waitForEnter()
+
+	return
+}
+
 /* To be used...
+
+func drawBox(x, y, w, h int,
+	title string,
+	titleEffect, titleBGEffect termbox.Attribute,
+) (err error) {
+
+	for i := 0; i < h; i++ {
+		termbox.SetCell(x, y+i, '│', coldef, coldef)
+		termbox.SetCell(w, y+i, '│', coldef, coldef)
+	}
+
+	fill(x, y, w, 1, termbox.Cell{Ch: '─'})
+	fill(x, h, w, 1, termbox.Cell{Ch: '─'})
+
+	termbox.SetCell(x, y, '┌', coldef, coldef)
+	termbox.SetCell(x, h, '└', coldef, coldef)
+
+	termbox.SetCell(w, y, '┐', coldef, coldef)
+	termbox.SetCell(w, h, '┘', coldef, coldef)
+
+	guiPrint(x+1, y, w, titleEffect, titleBGEffect, title)
+
+	err = termbox.Flush()
+	return
+}
+
 
 func printOptionsBox(maxOptionsLine, selected int,
 	options []string,
@@ -242,24 +263,3 @@ func printOptionsBox(maxOptionsLine, selected int,
 	err = drawBox(midx-maxW/2, midy-nL2, maxW, midy+nL2, title, termbox.AttrBold, coldef)
 	return
 } */
-
-func showErrorMsg(msg string) (err error) {
-	w, h := termbox.Size()
-
-	midy := h / 2
-	midx := (w - len(msg)) / 2
-
-	if err = termbox.Clear(coldef, coldef); err != nil {
-		return
-	}
-
-	guiPrint(midx, midy, w, termbox.ColorRed, coldef, msg)
-	guiPrint(midx, midy+2, w, termbox.AttrUnderline, coldef, translate.AcceptEnter)
-	if err = termbox.Sync(); err != nil {
-		return
-	}
-
-	waitForEnter()
-
-	return
-}

@@ -1,6 +1,6 @@
 package main
 
-// Adaptation of the "editBox" example from termbox
+// Adaptation (pruned code + of the "editBox" example from termbox
 
 import (
 	"unicode/utf8"
@@ -8,6 +8,10 @@ import (
 	"github.com/mattn/go-runewidth"
 	"github.com/nsf/termbox-go"
 )
+
+const coldef = termbox.ColorDefault
+const preferedHorizontalThreshold = 5
+const tabstopLength = 8
 
 func fill(x, y, w, h int, cell termbox.Cell) {
 	for ly := 0; ly < h; ly++ {
@@ -60,9 +64,6 @@ func byteSliceInsert(text []byte, offset int, what []byte) []byte {
 	return text
 }
 
-const preferedHorizontalThreshold = 5
-const tabstopLength = 8
-
 type editBox struct {
 	text          []byte
 	lineVOffset   int
@@ -74,17 +75,13 @@ type editBox struct {
 func (eb *editBox) Draw(x, y, w, h int) {
 	eb.AdjustVOffset(w)
 
-	const coldef = termbox.ColorDefault
 	fill(x, y, w, h, termbox.Cell{Ch: ' '})
 
 	t := eb.text
 	lx := 0
 	tabstop := 0
-	for {
+	for len(t) != 0 {
 		rx := lx - eb.lineVOffset
-		if len(t) == 0 {
-			break
-		}
 
 		if lx == tabstop {
 			tabstop += tabstopLength
@@ -100,11 +97,8 @@ func (eb *editBox) Draw(x, y, w, h int) {
 		if r == '\t' {
 			for ; lx < tabstop; lx++ {
 				rx = lx - eb.lineVOffset
-				if rx >= w {
-					goto next
-				}
 
-				if rx >= 0 {
+				if rx >= 0 && rx < w {
 					termbox.SetCell(x+rx, y, ' ', coldef, coldef)
 				}
 			}
@@ -114,7 +108,7 @@ func (eb *editBox) Draw(x, y, w, h int) {
 			}
 			lx += runewidth.RuneWidth(r)
 		}
-	next:
+
 		t = t[size:]
 	}
 

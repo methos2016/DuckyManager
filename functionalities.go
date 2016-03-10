@@ -6,6 +6,36 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+func pickFunctionality(ev termbox.Event, currentState State) {
+	if ev.Ch != 0 {
+		switch ev.Ch {
+		case 's', 'S':
+
+			res, err := search(currentState.Scripts)
+			if err != nil {
+				//TODO Handle err
+			}
+
+			if len(res) != 0 {
+				mainLoop(State{
+					Scripts:       res,
+					Position:      0,
+					PositionUpper: 0,
+				})
+
+			} else {
+				err := showErrorMsg(translate.NoMatch)
+				if err != nil {
+					//TODO Handle err
+				}
+			}
+
+		case 'e', 'E':
+			edit(currentState)
+		}
+	}
+}
+
 func search(scripts []Script) (res []Script, err error) {
 
 	var eB editBox
@@ -93,8 +123,8 @@ func search(scripts []Script) (res []Script, err error) {
 	return
 }
 
-func edit(position int, scripts []Script) {
-	script := scripts[position]
+func edit(currentState State) {
+	script := currentState.Scripts[currentState.Position]
 
 	// Iterate through the fields
 	var eB editBox
@@ -162,9 +192,9 @@ func edit(position int, scripts []Script) {
 	}
 
 	// Update values of script
-	scripts[position] = script
+	currentState.Scripts[currentState.Position] = script
 
-	SortScripts(scripts)
+	SortScripts(currentState.Scripts)
 }
 
 func waitForEnter() {

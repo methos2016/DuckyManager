@@ -22,4 +22,5 @@
 "TooLong":"Too long",
 "Any":"Any",
 "NoMatch":"No script matches that description",
-"AcceptEnter":"Press Enter to continue"}
+"AcceptEnter":"Press Enter to continue",
+"LoadingLocal":"Loading local scripts"}

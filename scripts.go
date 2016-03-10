@@ -27,8 +27,9 @@ type Script struct {
 	Hash string
 }
 
-// SearchLocal will search on the path for valid scripts and load them onto the already loaded scripts
-func SearchLocal(path string, scripts *[]Script) (count uint, err error) {
+// SearchNewLocal will search on the path for valid scripts and load them onto the already loaded scripts.
+// It ignores the ones already loaded (evades repeating)
+func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -61,49 +62,9 @@ func SearchLocal(path string, scripts *[]Script) (count uint, err error) {
 	return
 }
 
-// CheckLocal will check the local database of scripts.
-// Will create a new one if it doesn't exists.
-// Returns all the loaded data, plus info about the changes made
-func CheckLocal(path, scriptsPath string) (
-	scripts []Script,
-	totalValid, deleted, modified, newOnes uint,
-	err error,
-) {
-
-	// Read / create database
-	f, err := ioutil.ReadFile(path)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return
-		}
-		// database does not exist, create
-		var f2 *os.File // to remove shadowing from err later
-
-		f2, err = os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
-		if err != nil {
-			return scripts, totalValid, deleted, modified, newOnes, err
-		}
-		_, err = f2.WriteString("[{}]")
-		if err != nil {
-			// TODO handle err
-		}
-		err = f2.Close()
-		if err != nil {
-			// TODO handle err
-		}
-
-		f, err = ioutil.ReadFile(path)
-		if err != nil {
-			return scripts, totalValid, deleted, modified, newOnes, err
-		}
-
-	}
-
-	if err = json.Unmarshal(f, &scripts); err != nil {
-		return
-	}
-
-	// Check database integrity
+// CheckChanged will report any changes to the scripts.
+// That is, which ones got deleted, modified and the total number of valid ones (not deleted)
+func CheckChanged(scripts []Script) (deleted, modified, totalValid uint) {
 	for i, script := range scripts {
 		fE, hE, hash := script.CheckIntegrity()
 		if fE {
@@ -117,29 +78,73 @@ func CheckLocal(path, scriptsPath string) (
 			totalValid++
 		}
 	}
+	return
+}
 
-	// Look for new files
-	newOnes, err = SearchLocal(scriptsPath, &scripts)
+// CreateNewDatabase will create a new DB in the path
+func CreateNewDatabase(path string) (f []byte, err error) {
+
+	f2, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+	if err != nil {
+		return nil, err
+	}
+	_, err = f2.WriteString("[{}]")
+	if err != nil {
+		// TODO handle err
+	}
+	err = f2.Close()
+	if err != nil {
+		// TODO handle err
+	}
+
+	f, err = ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+// OpenDatabase will read the data of the database, and create a new one if it does not exist
+func OpenDatabase(path string) (f []byte, err error) {
+
+	f, err = ioutil.ReadFile(path)
+	if err != nil && os.IsNotExist(err) {
+		f, err = CreateNewDatabase(path)
+	}
+
+	return
+}
+
+// CheckLocal will check the local database of scripts.
+// Will create a new one if it doesn't exists.
+// Returns all the loaded data, plus info about the changes made
+func CheckLocal(path, scriptsPath string) (
+	scripts []Script,
+	totalValid, deleted, modified, newOnes uint,
+	err error,
+) {
+
+	f, err := OpenDatabase(path)
+	if err != nil {
+		return
+	}
+
+	if err = json.Unmarshal(f, &scripts); err != nil {
+		return
+	}
+
+	// Check database integrity
+	deleted, modified, totalValid = CheckChanged(scripts)
+
+	newOnes, err = SearchNewLocal(scriptsPath, &scripts)
 	if err != nil {
 		return
 	}
 
 	totalValid += newOnes
 
-	b, err := json.Marshal(scripts)
-	if err != nil {
-		return
-	}
-
-	f2, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
-	if err != nil {
-		return
-	}
-
-	_, err = f2.Write(b)
-	if err != nil {
-		return
-	}
+	err = Save(path, scripts)
 
 	return
 }
@@ -217,22 +222,14 @@ func Save(path string, scripts []Script) (err error) {
 // Scripts is a dummy type for qsort
 type Scripts []Script
 
-func (s Scripts) Len() int {
-	return len(s)
-}
-func (s Scripts) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s Scripts) Less(i, j int) bool {
-	return s[i].GetName() < s[j].GetName()
-}
+func (s Scripts) Len() int           { return len(s) }
+func (s Scripts) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s Scripts) Less(i, j int) bool { return s[i].GetName() < s[j].GetName() }
 
 /*** END SORT FUNCTIONS***/
 
 // SortScripts sorts the slice based on name and path
-func SortScripts(scripts Scripts) {
-	sort.Sort(scripts)
-}
+func SortScripts(scripts Scripts) { sort.Sort(scripts) }
 
 // ListByName will return all scripts which contains the name on it
 // An empty string is interpreted as "any".

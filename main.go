@@ -13,12 +13,18 @@ import (
 
 func main() {
 	// Load lang
-	if err := checkLangs(os.Args, false); err != nil {
+	var msg string
+	msg, err := checkLangs(os.Args)
+	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(errExitCode)
 	}
+	if msg != "" {
+		fmt.Printf(msg)
+		os.Exit(errExitCode)
+	}
 
-	if err := parseLang(os.Args[1]); err != nil {
+	if err = parseLang(os.Args[1]); err != nil {
 		fmt.Println(err.Error())
 		os.Exit(errExitCode)
 	}
@@ -47,11 +53,9 @@ func main() {
 
 	l.SetOutput(f)
 
-	position, positionUpper := 0, 0
-
 	// Load scripts
 	l.Println("+------------------------------+")
-	l.Println("Loading local scripts")
+	l.Println(translate.LoadingLocal)
 
 	scripts, valid, deleted, modified, newOnes, err := CheckLocal(config.LocalDBFile, config.ScriptsPath)
 
@@ -82,101 +86,30 @@ func main() {
 
 	termbox.SetInputMode(termbox.InputEsc)
 	termbox.SetOutputMode(termbox.Output256)
-	l.Println(okStr + translate.TermInputMode + ": Input ESC || " + translate.TermOutputMode + ": Output256")
+	l.Println(okStr + translate.TermInputMode + ": InputESC || " + translate.TermOutputMode + ": Output256")
 
-	mainLoop(positionUpper, position, scripts)
+	currentState := State{
+		Scripts:       scripts,
+		Position:      0,
+		PositionUpper: 0,
+	}
 
+	mainLoop(currentState)
 }
 
-func mainLoop(positionUpper, position int, scripts []Script) {
-	saveOn := false
-	var tmpPosition, tmpPositionUpper int
-	var tmpSave []Script
-	for {
+func mainLoop(currentState State) {
+	var ev termbox.Event
+	for ev.Key != termbox.KeyEsc && ev.Key != termbox.KeyCtrlC {
 
-		if err := redrawMain(positionUpper, position, scripts); err != nil {
+		if err := redrawMain(currentState); err != nil {
 			l.Println(errStr + translate.ErrDrawing + ": " + err.Error())
 			os.Exit(errExitCode)
 		}
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			switch ev.Key {
-			case termbox.KeyEsc, termbox.KeyCtrlC:
-				if saveOn {
-					saveOn = false
-					scripts = tmpSave
-					position = tmpPosition
-					positionUpper = tmpPositionUpper
-				} else {
-					return
-				}
+			currentState.SwitchKey(ev)
 
-			case termbox.KeyArrowDown:
-
-				if position+1 < len(scripts) {
-					position++
-
-					_, h := termbox.Size()
-
-					if position-positionUpper > h-1 {
-						positionUpper++
-					}
-				}
-
-			case termbox.KeyArrowUp:
-				if position-1 >= 0 {
-					position--
-
-					if position < positionUpper {
-						positionUpper--
-					}
-				}
-
-			case termbox.KeyHome:
-				position = 0
-				positionUpper = 0
-
-			case termbox.KeyEnd:
-				position = len(scripts) - 1
-				_, h := termbox.Size()
-				positionUpper = len(scripts) - h
-				if positionUpper < 0 {
-					positionUpper = 0
-				}
-
-			default:
-				if ev.Ch != 0 {
-					switch ev.Ch {
-					case 's', 'S':
-
-						res, err := search(scripts)
-						if err != nil {
-							//TODO Hnadle err
-						}
-
-						if len(res) != 0 {
-							saveOn = true
-
-							tmpSave = scripts
-							tmpPosition = position
-							tmpPositionUpper = positionUpper
-
-							scripts = res
-							position = 0
-							positionUpper = 0
-						} else {
-							err := showErrorMsg(translate.NoMatch)
-							if err != nil {
-								//TODO Hnadle err
-							}
-						}
-
-					case 'e', 'E':
-						edit(position, scripts)
-					}
-				}
-			}
 		case termbox.EventError:
 			l.Println(errStr + translate.ErrEvent + ": " + ev.Err.Error())
 			os.Exit(errExitCode)
