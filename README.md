@@ -47,6 +47,7 @@ You can:
 
 #### Other
 - Official repository up and running, automatically included to be used
+- Logs all over the code, so it's actually useful
 
 
 ## Dev 3
@@ -55,6 +56,8 @@ You can:
 - Users can now create their own repositories, and others can list them to be used
 - Automatic encoding and deploying system (for any keymap)
 
+#### Other
+- Set a limit to the logs (by size, lines...). Configurable.
 
 ## Dev 4
 
