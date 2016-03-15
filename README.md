@@ -10,7 +10,7 @@ Current avaliable languages:
 
 ### Note this is still a WIP project.
 
-# Current State
+# Change Log
 ## Dev 1
 - [+] Local script managing:
     - [+] Automatic script inclusion (reading folder)

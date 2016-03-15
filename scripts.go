@@ -280,12 +280,11 @@ func ListByDesc(scripts []Script, desc string) (matches []Script) {
 	return
 }
 
-// TrimRepeated will return an alice formed from the passed one,
+// TrimRepeated will return an slice formed from the passed one,
 // but the result will only include unique values.
 func TrimRepeated(scripts []Script) (valid []Script) {
 
 	for _, s := range scripts {
-		l.Println(scripts, valid)
 		eq := false
 		for _, v := range valid {
 			if s.Equals(v) {

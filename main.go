@@ -98,9 +98,9 @@ func main() {
 }
 
 func mainLoop(currentState State) {
-	var ev termbox.Event
-	for ev.Key != termbox.KeyEsc && ev.Key != termbox.KeyCtrlC {
+	exit := false
 
+	for !exit {
 		if err := redrawMain(currentState); err != nil {
 			l.Println(errStr + translate.ErrDrawing + ": " + err.Error())
 			os.Exit(errExitCode)
@@ -108,8 +108,12 @@ func mainLoop(currentState State) {
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			currentState.SwitchKey(ev)
-
+			switch ev.Key {
+			case termbox.KeyEsc, termbox.KeyCtrlC:
+				exit = true
+			default:
+				currentState.SwitchKey(ev)
+			}
 		case termbox.EventError:
 			l.Println(errStr + translate.ErrEvent + ": " + ev.Err.Error())
 			os.Exit(errExitCode)

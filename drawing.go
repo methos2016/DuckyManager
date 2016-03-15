@@ -19,6 +19,7 @@ func guiPrint(x, y, w int,
 	}
 }
 
+// TODO show title on main screen as "main, search of "x"...
 func redrawMain(currentState State) error {
 	if err := termbox.Clear(coldef, coldef); err != nil {
 		return err
@@ -182,8 +183,89 @@ func showErrorMsg(msg string) (err error) {
 	return
 }
 
+func editableMenu(titles []string, values []*string) (err error) {
+	var eB editBox
+	var currentValue = 0
+	var done, tabbed, exit = false, false, false
+
+	for !done {
+		eB.text = []byte(*values[currentValue])
+		if err = printEditBox(eB, 30, titles[currentValue]); err != nil {
+			return
+		}
+
+		switch ev := termbox.PollEvent(); ev.Type {
+		case termbox.EventKey:
+			tabbed, done, exit = editableMenuSwitchKey(&eB, values, currentValue, ev)
+			if exit {
+				return
+			}
+
+		case termbox.EventError:
+			l.Println(translate.ErrEvent + ": " + ev.Err.Error())
+		}
+
+		*values[currentValue] = string(eB.text)
+
+		if tabbed {
+			if currentValue+1 == len(values) {
+				currentValue = 0
+			} else {
+				currentValue++
+			}
+			tabbed = false
+		}
+	}
+
+	return
+}
+
+// TODO 3 booleans seems dirty. Maybe fix this sometime.
+
+// editableMenuSwitchKey switches between the posibilities on the editable menu.
+// "tabbed" Returns true if the user tabbed (to switch between values), false if not.
+// "done" Returns true if the user pressed Enter (to submit the data)
+// "exit" returns true if the user pressed Ctrl+C or Esc
+func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev termbox.Event) (tabbed, done, exit bool) {
+	tabbed, done, exit = false, false, false
+	switch ev.Key {
+	// Iterate
+	case termbox.KeyTab:
+		tabbed = true
+
+	// Save
+	case termbox.KeyEnter:
+		done = true
+	// Close without saving
+	case termbox.KeyCtrlC, termbox.KeyEsc:
+		exit = true
+
+	// Editing stuff
+	case termbox.KeyArrowLeft:
+		eB.MoveCursorOneRuneBackward()
+	case termbox.KeyArrowRight:
+		eB.MoveCursorOneRuneForward()
+	case termbox.KeyBackspace, termbox.KeyBackspace2:
+		eB.DeleteRuneBackward()
+	case termbox.KeyDelete:
+		eB.DeleteRuneForward()
+	case termbox.KeySpace:
+		eB.InsertRune(' ')
+	case termbox.KeyHome:
+		eB.MoveCursorToBeginningOfTheLine()
+	case termbox.KeyEnd:
+		eB.MoveCursorToEndOfTheLine()
+	default:
+		if ev.Ch != 0 {
+			eB.InsertRune(ev.Ch)
+		}
+	}
+	return
+}
+
 /* To be used...
 
+//TODO freaking use this as standard on all menus..
 func drawBox(x, y, w, h int,
 	title string,
 	titleEffect, titleBGEffect termbox.Attribute,
