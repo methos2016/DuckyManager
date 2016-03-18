@@ -69,3 +69,8 @@ func (s *State) SwitchKey(ev termbox.Event) {
 		pickFunctionality(ev, *s)
 	}
 }
+
+// GetCurrentScript will return the script on the current position
+func (s *State) GetCurrentScript() Script {
+	return s.Scripts[s.Position]
+}

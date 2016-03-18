@@ -26,16 +26,13 @@ func redrawMain(currentState State) error {
 	}
 
 	w, h := termbox.Size()
-	// TODO sidebar && lostScripts to use State struct
-	sidebarDraw(w, h, currentState.Position, currentState.Scripts)
-	listScripts(w, h, currentState.PositionUpper, currentState.Position, currentState.Scripts)
 
+	sidebarDraw(w, h, currentState)
+	listScripts(w, h, currentState)
 	return termbox.Sync()
 }
 
-func listScripts(totalW, totalH, positionUpper, position int,
-	scripts []Script,
-) {
+func listScripts(totalW, totalH int, currentState State) {
 
 	w := totalW * 2 / 3
 	h := totalH
@@ -43,11 +40,11 @@ func listScripts(totalW, totalH, positionUpper, position int,
 	x := 0
 	y := totalH - h
 
-	for i, c := positionUpper, 0; c < h && c < len(scripts); c++ {
+	for i, c := currentState.PositionUpper, 0; c < h && c < len(currentState.Scripts); c++ {
 
-		name := scripts[i].GetName()
+		name := currentState.Scripts[i].GetName()
 
-		if i == position {
+		if i == currentState.Position {
 			guiPrint(x+1, y+c, w, termbox.AttrBold, coldef, name)
 		} else {
 			guiPrint(x+1, y+c, w, coldef, coldef, name)
@@ -55,10 +52,10 @@ func listScripts(totalW, totalH, positionUpper, position int,
 		i++
 	}
 
-	SortScripts(scripts)
+	SortScripts(currentState.Scripts)
 }
 
-func sidebarDraw(totalW, totalH, position int, scripts []Script) {
+func sidebarDraw(totalW, totalH int, currentState State) {
 
 	w := totalW / 3
 	h := totalH
@@ -72,21 +69,20 @@ func sidebarDraw(totalW, totalH, position int, scripts []Script) {
 	}
 
 	// Title
-	lines := printSideInfo(x+2, y+1, w, h, translate.SidebarTitle, scripts[position].Name)
+	lines := printSideInfo(x+2, y+1, w, h, translate.SidebarTitle, currentState.GetCurrentScript().Name)
 
 	// By
-	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarBy, scripts[position].User)
+	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarBy, currentState.GetCurrentScript().User)
 
 	// Targets
-	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarTags, scripts[position].Tags)
+	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarTags, currentState.GetCurrentScript().Tags)
 
 	// Desc
-	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, scripts[position].Desc)
+	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, currentState.GetCurrentScript().Desc)
 }
 
 func printSideInfo(x, y, w, h int,
-	title string,
-	msg string,
+	title, msg string,
 ) (line int) {
 
 	dotLen := len(": ")
