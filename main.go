@@ -55,7 +55,7 @@ func main() {
 
 	// Load scripts
 	l.Println("+------------------------------+")
-	l.Println(translate.LoadingLocal)
+	l.Println(translate.CheckingLocal)
 
 	scripts, valid, deleted, modified, newOnes, err := CheckLocal(config.LocalDBFile, config.ScriptsPath)
 

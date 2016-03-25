@@ -9,7 +9,7 @@ var (
 )
 
 const (
-	languageVer = "0.2"
+	languageVer = "0.3"
 	languageDir = "language"
 	configFile  = "config.json"
 

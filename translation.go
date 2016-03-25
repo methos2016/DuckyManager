@@ -6,24 +6,18 @@ import (
 	"io/ioutil"
 )
 
-// TODO check for unused strings
-
 // Strings holds each and every string on the program, allowing for easy translation
 type Strings struct {
 	Version string
 
 	CheckingLocal string
-	Info          string
-	TooLong       string
 	NoMatch       string
 	AcceptEnter   string
-	LoadingLocal  string
 
 	NewScripts string
 	Valid      string
 	Deleted    string
 	Modified   string
-	Any        string
 
 	TermInputMode  string
 	TermOutputMode string
@@ -33,7 +27,6 @@ type Strings struct {
 	SidebarTags  string
 	SidebarDesc  string
 
-	ErrClearScreen   string
 	ErrOpeningConfig string
 	ErrParsingConfig string
 	ErrCheckingLocal string
