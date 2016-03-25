@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -11,34 +9,19 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// TODO Fill this with logs, use the correct err/ok str and set size limit for logs
+
 func main() {
 	// Load lang
-	var msg string
-	msg, err := checkLangs(os.Args)
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(errExitCode)
-	}
-	if msg != "" {
-		fmt.Printf(msg)
-		os.Exit(errExitCode)
-	}
-
-	if err = parseLang(os.Args[1]); err != nil {
-		fmt.Println(err.Error())
+	if err := loadLang(); err != nil {
+		fmt.Println(err)
 		os.Exit(errExitCode)
 	}
 
 	// Load config
-	cf, err := ioutil.ReadFile(configFile)
+	config, err := loadConfig()
 	if err != nil {
-		fmt.Println(translate.ErrOpeningConfig + ": " + err.Error())
-		os.Exit(errExitCode)
-	}
-
-	err = json.Unmarshal(cf, &config)
-	if err != nil {
-		fmt.Println(errStr + translate.ErrParsingConfig + ": " + err.Error())
+		fmt.Println(err)
 		os.Exit(errExitCode)
 	}
 

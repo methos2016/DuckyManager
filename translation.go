@@ -50,14 +50,19 @@ func parseLang(langFile string) error {
 		return errors.New(errStr + "Error parsing language file: " + err.Error())
 	}
 
+	if translate.Version != languageVer {
+		return errors.New(errStr + "Language file is outdated")
+	}
+
 	return nil
 }
 
-// Everything OK if BOTH msgs and err are empty ("" && nil)
-func checkLangs(args []string) (msgs string, err error) {
+func checkLangs(args []string) (err error) {
+	var msgs string
+
 	files, err := ioutil.ReadDir(languageDir + "/")
 	if err != nil {
-		return "", errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
+		return errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
 	}
 
 	// If incorrect args, is not considered an error, but a msg will be returned.
@@ -66,11 +71,11 @@ func checkLangs(args []string) (msgs string, err error) {
 		msgs += "Your avaliable languages:\n\n"
 
 		for _, f := range files {
-			tmpLang, err := ioutil.ReadFile(languageDir + "/" + f.Name())
-			if err != nil {
+			tmpLang, err2 := ioutil.ReadFile(languageDir + "/" + f.Name())
+			if err2 != nil {
 				msgs += errStr + f.Name() + " [Could not read]\n"
 
-			} else if err = json.Unmarshal(tmpLang, &translate); err == nil {
+			} else if err2 = json.Unmarshal(tmpLang, &translate); err2 == nil {
 				if translate.Version == languageVer {
 					msgs += okStr + f.Name() + " [OK]\n"
 				} else {
@@ -80,6 +85,7 @@ func checkLangs(args []string) (msgs string, err error) {
 				msgs += errStr + f.Name() + " [Corrupted]\n"
 			}
 		}
+		err = errors.New(msgs)
 	}
 
 	return
