@@ -23,4 +23,6 @@
 "Any":"Any",
 "NoMatch":"No script matches that description",
 "AcceptEnter":"Press Enter to continue",
-"LoadingLocal":"Loading local scripts"}
+"LoadingLocal":"Loading local scripts",
+"ErrPickingFunc":"Error while picking function from key stroke",
+"ErrSavingDB":"Error while saving changes to the database"}

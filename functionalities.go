@@ -6,14 +6,14 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-func pickFunctionality(ev termbox.Event, currentState State) {
+func pickFunctionality(ev termbox.Event, currentState State) error {
 	if ev.Ch != 0 {
 		switch ev.Ch {
 		case 's', 'S':
 
 			res, err := search(currentState.Scripts)
 			if err != nil {
-				//TODO Handle err
+				return err
 			}
 
 			if len(res) != 0 {
@@ -26,17 +26,19 @@ func pickFunctionality(ev termbox.Event, currentState State) {
 			} else {
 				err := showErrorMsg(translate.NoMatch)
 				if err != nil {
-					//TODO Handle err
+					return err
 				}
 			}
 
 		case 'e', 'E':
 			if err := edit(currentState); err != nil {
-				//TODO Handle err
+				return err
 			}
 
 		}
 	}
+
+	return nil
 }
 
 func search(scripts []Script) (res []Script, err error) {

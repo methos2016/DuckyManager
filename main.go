@@ -64,9 +64,12 @@ func main() {
 		l.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
 		os.Exit(errExitCode)
 	}
+
+	// make sure we save any changes to the DB
 	defer func() {
 		if err = Save(config.LocalDBFile, scripts); err != nil {
-			//TODO handle
+			l.Println(translate.ErrSavingDB + ": " + err.Error())
+			fmt.Println(translate.ErrSavingDB + ": " + err.Error())
 		}
 	}()
 

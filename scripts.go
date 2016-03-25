@@ -90,11 +90,11 @@ func CreateNewDatabase(path string) (f []byte, err error) {
 	}
 	_, err = f2.WriteString("[{}]")
 	if err != nil {
-		// TODO handle err
+		return nil, err
 	}
 	err = f2.Close()
 	if err != nil {
-		// TODO handle err
+		return nil, err
 	}
 
 	f, err = ioutil.ReadFile(path)

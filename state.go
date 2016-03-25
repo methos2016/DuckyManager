@@ -66,7 +66,9 @@ func (s *State) SwitchKey(ev termbox.Event) {
 
 	default:
 		// will call mainLoop by itself if needed, then come back
-		pickFunctionality(ev, *s)
+		if err := pickFunctionality(ev, *s); err != nil {
+			l.Println(translate.ErrPickingFunc + ": " + err.Error())
+		}
 	}
 }
 

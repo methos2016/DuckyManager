@@ -182,9 +182,9 @@ func showErrorMsg(msg string) (err error) {
 func editableMenu(titles []string, values []*string) (err error) {
 	var eB editBox
 	var currentValue = 0
-	var done, tabbed, exit = false, false, false
+	var action = -1
 
-	for !done {
+	for action != actionEnter {
 		eB.text = []byte(*values[currentValue])
 		if err = printEditBox(eB, 30, titles[currentValue]); err != nil {
 			return
@@ -192,8 +192,8 @@ func editableMenu(titles []string, values []*string) (err error) {
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			tabbed, done, exit = editableMenuSwitchKey(&eB, values, currentValue, ev)
-			if exit {
+			action = editableMenuSwitchKey(&eB, values, currentValue, ev)
+			if action == actionEsc {
 				return
 			}
 
@@ -203,13 +203,12 @@ func editableMenu(titles []string, values []*string) (err error) {
 
 		*values[currentValue] = string(eB.text)
 
-		if tabbed {
+		if action == actionTab {
 			if currentValue+1 == len(values) {
 				currentValue = 0
 			} else {
 				currentValue++
 			}
-			tabbed = false
 		}
 	}
 
@@ -218,23 +217,29 @@ func editableMenu(titles []string, values []*string) (err error) {
 
 // TODO 3 booleans seems dirty. Maybe fix this sometime.
 
+const (
+	actionTab   = 0
+	actionEnter = 1
+	actionEsc   = 2
+)
+
 // editableMenuSwitchKey switches between the posibilities on the editable menu.
-// "tabbed" Returns true if the user tabbed (to switch between values), false if not.
-// "done" Returns true if the user pressed Enter (to submit the data)
-// "exit" returns true if the user pressed Ctrl+C or Esc
-func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev termbox.Event) (tabbed, done, exit bool) {
-	tabbed, done, exit = false, false, false
+// Returns 0 if the user tabbed,
+// 		   1 if the user pressed Enter,
+// 		   2 if the user pressed Ctrl+C or Esc
+func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev termbox.Event) (action int) {
+	action = -1
 	switch ev.Key {
 	// Iterate
 	case termbox.KeyTab:
-		tabbed = true
+		action = actionTab
 
 	// Save
 	case termbox.KeyEnter:
-		done = true
+		action = actionEnter
 	// Close without saving
 	case termbox.KeyCtrlC, termbox.KeyEsc:
-		exit = true
+		action = actionEsc
 
 	// Editing stuff
 	case termbox.KeyArrowLeft:
