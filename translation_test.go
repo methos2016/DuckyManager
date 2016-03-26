@@ -28,13 +28,13 @@ func TestLangs(t *testing.T) {
 	}
 
 	// Test incorrect len
-	if msg, err := checkLangs([]string{"", "en", ""}); err == nil && msg == "" {
+	if err := checkLangs([]string{"", "en", ""}); err == nil {
 		t.Error("Didn't recognize an incorrect length")
 	}
 
 	// Test correct lengths
 	for _, f := range files {
-		if _, err := checkLangs([]string{"", f.Name()}); err != nil {
+		if err := checkLangs([]string{"", f.Name()}); err != nil {
 			t.Error("Showed an error on correct lang " + f.Name())
 			t.Log(err)
 		}
@@ -67,7 +67,7 @@ func TestTranslationStructUsedOnLang(t *testing.T) {
 		clearTranslate(t)
 
 		// Fill it
-		if _, err := checkLangs([]string{"", f.Name()}); err != nil {
+		if err := checkLangs([]string{"", f.Name()}); err != nil {
 			t.Fatal(err.Error())
 			os.Exit(errExitCode)
 		}

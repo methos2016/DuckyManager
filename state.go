@@ -9,6 +9,15 @@ type State struct {
 	PositionUpper int
 }
 
+// DefaultState will return the default values for a state
+func DefaultState(scripts []Script) State {
+	return State{
+		Scripts:       scripts,
+		Position:      0,
+		PositionUpper: 0,
+	}
+}
+
 // Down handles a keystroke on the "down" arrow
 func (s *State) Down() {
 	if s.Position+1 < len(s.Scripts) {

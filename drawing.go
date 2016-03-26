@@ -215,8 +215,6 @@ func editableMenu(titles []string, values []*string) (err error) {
 	return
 }
 
-// TODO 3 booleans seems dirty. Maybe fix this sometime.
-
 const (
 	actionTab   = 0
 	actionEnter = 1
@@ -227,6 +225,7 @@ const (
 // Returns 0 if the user tabbed,
 // 		   1 if the user pressed Enter,
 // 		   2 if the user pressed Ctrl+C or Esc
+//		   -1 if anything else
 func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev termbox.Event) (action int) {
 	action = -1
 	switch ev.Key {

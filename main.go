@@ -62,23 +62,13 @@ func main() {
 		"[" + strconv.Itoa(int(newOnes)) + "] " + translate.NewScripts)
 
 	// GUI
-	err = termbox.Init()
+	currentState, err := loadGUI(scripts)
 	if err != nil {
 		fmt.Println(errStr + translate.ErrTermboxInit + ": " + err.Error())
 		l.Println(errStr + translate.ErrTermboxInit + ": " + err.Error())
 		os.Exit(errExitCode)
 	}
 	defer termbox.Close()
-
-	termbox.SetInputMode(termbox.InputEsc)
-	termbox.SetOutputMode(termbox.Output256)
-	l.Println(okStr + translate.TermInputMode + ": InputESC || " + translate.TermOutputMode + ": Output256")
-
-	currentState := State{
-		Scripts:       scripts,
-		Position:      0,
-		PositionUpper: 0,
-	}
 
 	mainLoop(currentState)
 }
