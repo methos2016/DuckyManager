@@ -19,16 +19,17 @@ func guiPrint(x, y, w int,
 	}
 }
 
-// TODO show title on main screen as "main, search of "x"...
 func redrawMain(currentState State) error {
 	if err := termbox.Clear(coldef, coldef); err != nil {
 		return err
 	}
 
 	w, h := termbox.Size()
+	guiPrint(2, h-1, w, termbox.AttrBold, coldef, currentState.Title)
+	fill(0, h-2, w, 1, termbox.Cell{Ch: '─'})
 
-	sidebarDraw(w, h, currentState)
-	listScripts(w, h, currentState)
+	sidebarDraw(w, h-2, currentState)
+	listScripts(w, h-2, currentState)
 	return termbox.Sync()
 }
 
@@ -131,33 +132,6 @@ func printSideInfo(x, y, w, h int,
 	return
 }
 
-func printEditBox(eB editBox, editBoxWidth int, title string) (err error) {
-
-	w, h := termbox.Size()
-
-	midy := h / 2
-	midx := (w - editBoxWidth) / 2
-
-	// unicode box drawing chars around the edit box
-	termbox.SetCell(midx-1, midy, '│', coldef, coldef)
-	termbox.SetCell(midx+editBoxWidth, midy, '│', coldef, coldef)
-	termbox.SetCell(midx-1, midy-1, '┌', coldef, coldef)
-	termbox.SetCell(midx-1, midy+1, '└', coldef, coldef)
-	termbox.SetCell(midx+editBoxWidth, midy-1, '┐', coldef, coldef)
-	termbox.SetCell(midx+editBoxWidth, midy+1, '┘', coldef, coldef)
-	fill(midx, midy-1, editBoxWidth, 1, termbox.Cell{Ch: '─'})
-	fill(midx, midy+1, editBoxWidth, 1, termbox.Cell{Ch: '─'})
-
-	// Title
-	guiPrint(midx, midy-1, editBoxWidth, termbox.AttrBold, coldef, title)
-
-	eB.Draw(midx, midy, editBoxWidth, 1)
-	termbox.SetCursor(midx+eB.CursorX(), midy)
-
-	err = termbox.Flush()
-	return
-}
-
 func showErrorMsg(msg string) (err error) {
 	w, h := termbox.Size()
 
@@ -184,6 +158,8 @@ func editableMenu(titles []string, values []*string) (err error) {
 	var currentValue = 0
 	var action = -1
 
+	l.Println(values)
+
 	for action != actionEnter {
 		eB.text = []byte(*values[currentValue])
 		if err = printEditBox(eB, 30, titles[currentValue]); err != nil {
@@ -192,7 +168,7 @@ func editableMenu(titles []string, values []*string) (err error) {
 
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			action = editableMenuSwitchKey(&eB, values, currentValue, ev)
+			action = editableMenuSwitchKey(&eB, ev)
 			if action == actionEsc {
 				return
 			}
@@ -226,7 +202,7 @@ const (
 // 		   1 if the user pressed Enter,
 // 		   2 if the user pressed Ctrl+C or Esc
 //		   -1 if anything else
-func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev termbox.Event) (action int) {
+func editableMenuSwitchKey(eB *editBox, ev termbox.Event) (action int) {
 	action = -1
 	switch ev.Key {
 	// Iterate
@@ -264,33 +240,6 @@ func editableMenuSwitchKey(eB *editBox, values []*string, currentValue int, ev t
 }
 
 /* To be used...
-
-//TODO freaking use this as standard on all menus..
-func drawBox(x, y, w, h int,
-	title string,
-	titleEffect, titleBGEffect termbox.Attribute,
-) (err error) {
-
-	for i := 0; i < h; i++ {
-		termbox.SetCell(x, y+i, '│', coldef, coldef)
-		termbox.SetCell(w, y+i, '│', coldef, coldef)
-	}
-
-	fill(x, y, w, 1, termbox.Cell{Ch: '─'})
-	fill(x, h, w, 1, termbox.Cell{Ch: '─'})
-
-	termbox.SetCell(x, y, '┌', coldef, coldef)
-	termbox.SetCell(x, h, '└', coldef, coldef)
-
-	termbox.SetCell(w, y, '┐', coldef, coldef)
-	termbox.SetCell(w, h, '┘', coldef, coldef)
-
-	guiPrint(x+1, y, w, titleEffect, titleBGEffect, title)
-
-	err = termbox.Flush()
-	return
-}
-
 
 func printOptionsBox(maxOptionsLine, selected int,
 	options []string,

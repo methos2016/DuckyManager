@@ -4,6 +4,7 @@ import "github.com/nsf/termbox-go"
 
 // State is just a holder for the current state of the program
 type State struct {
+	Title         string
 	Scripts       []Script
 	Position      int
 	PositionUpper int
@@ -12,6 +13,7 @@ type State struct {
 // DefaultState will return the default values for a state
 func DefaultState(scripts []Script) State {
 	return State{
+		Title:         "Main",
 		Scripts:       scripts,
 		Position:      0,
 		PositionUpper: 0,
@@ -25,7 +27,8 @@ func (s *State) Down() {
 
 		_, h := termbox.Size()
 
-		if s.Position-s.PositionUpper > h-1 {
+		// Magic numbers... "-" because of the title at the bottom
+		if s.Position-s.PositionUpper > h-3 {
 			s.PositionUpper++
 		}
 	}

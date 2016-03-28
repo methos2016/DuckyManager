@@ -18,6 +18,7 @@ func pickFunctionality(ev termbox.Event, currentState State) error {
 
 			if len(res) != 0 {
 				mainLoop(State{
+					Title:         "Search results",
 					Scripts:       res,
 					Position:      0,
 					PositionUpper: 0,
@@ -41,11 +42,16 @@ func pickFunctionality(ev termbox.Event, currentState State) error {
 	return nil
 }
 
+// TODO fix crash on search
 func search(scripts []Script) (res []Script, err error) {
 
 	var functions = []func([]Script, string) []Script{ListByName, ListByUser, ListByTags, ListByDesc}
 	var titles = []string{translate.SidebarTitle, translate.SidebarBy, translate.SidebarTags, translate.SidebarDesc}
 	var values = make([]*string, len(titles))
+
+	for _, v := range values {
+		*v = ""
+	}
 
 	if err = editableMenu(titles, values); err != nil {
 		return

@@ -13,6 +13,33 @@ const coldef = termbox.ColorDefault
 const preferedHorizontalThreshold = 5
 const tabstopLength = 8
 
+func printEditBox(eB editBox, editBoxWidth int, title string) (err error) {
+
+	w, h := termbox.Size()
+
+	midy := h / 2
+	midx := (w - editBoxWidth) / 2
+
+	// unicode box drawing chars around the edit box
+	termbox.SetCell(midx-1, midy, '│', coldef, coldef)
+	termbox.SetCell(midx+editBoxWidth, midy, '│', coldef, coldef)
+	termbox.SetCell(midx-1, midy-1, '┌', coldef, coldef)
+	termbox.SetCell(midx-1, midy+1, '└', coldef, coldef)
+	termbox.SetCell(midx+editBoxWidth, midy-1, '┐', coldef, coldef)
+	termbox.SetCell(midx+editBoxWidth, midy+1, '┘', coldef, coldef)
+	fill(midx, midy-1, editBoxWidth, 1, termbox.Cell{Ch: '─'})
+	fill(midx, midy+1, editBoxWidth, 1, termbox.Cell{Ch: '─'})
+
+	// Title
+	guiPrint(midx, midy-1, editBoxWidth, termbox.AttrBold, coldef, title)
+
+	eB.Draw(midx, midy, editBoxWidth, 1)
+	termbox.SetCursor(midx+eB.CursorX(), midy)
+
+	err = termbox.Flush()
+	return
+}
+
 func fill(x, y, w, h int, cell termbox.Cell) {
 	for ly := 0; ly < h; ly++ {
 		for lx := 0; lx < w; lx++ {
