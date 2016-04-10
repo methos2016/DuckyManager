@@ -42,15 +42,17 @@ func pickFunctionality(ev termbox.Event, currentState State) error {
 	return nil
 }
 
-// TODO fix crash on search
 func search(scripts []Script) (res []Script, err error) {
 
 	var functions = []func([]Script, string) []Script{ListByName, ListByUser, ListByTags, ListByDesc}
 	var titles = []string{translate.SidebarTitle, translate.SidebarBy, translate.SidebarTags, translate.SidebarDesc}
-	var values = make([]*string, len(titles))
 
-	for _, v := range values {
-		*v = ""
+	// Pointers needed for compatibility with edit function
+	var values = make([]*string, len(titles))
+	var valueHolders = make([]string, len(titles))
+
+	for i := range values {
+		values[i] = &valueHolders[i]
 	}
 
 	if err = editableMenu(titles, values); err != nil {
