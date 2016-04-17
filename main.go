@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -12,8 +14,19 @@ import (
 // TODO Fill this with logs, use the correct err/ok str and set size limit for logs
 
 func main() {
+	// Debug flag
+	flag.BoolVar(&debug, "debug", false, "Activates debug output to logs. Meant for bug fixing/reports")
+	flag.StringVar(&lang, "lang", "en", "Sets the language for the program")
+	var checkLang = flag.Bool("sanity", false, "Sanity checks installed languages")
+	flag.Parse()
+
+	if *checkLang {
+		fmt.Println(checkLangs())
+		return
+	}
+
 	// Load lang
-	if err := loadLang(); err != nil {
+	if err := parseLang(lang); err != nil {
 		fmt.Println(err)
 		os.Exit(errExitCode)
 	}
@@ -25,21 +38,24 @@ func main() {
 		os.Exit(errExitCode)
 	}
 
-	// Init log
-	f, err := os.OpenFile(config.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		fmt.Println(errStr + translate.ErrParsingConfig + ": " + err.Error())
-		os.Exit(errExitCode)
+	// Init log if debug is active
+	if debug {
+		var f *os.File
+		f, err = os.OpenFile(config.LogFile, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			fmt.Println(errStr + translate.ErrParsingConfig + ": " + err.Error())
+			os.Exit(errExitCode)
+		}
+
+		l = log.New(f, "", log.Ltime)
+		l.SetOutput(f)
+	} else {
+		l = log.New(ioutil.Discard, "", log.Ltime)
 	}
-
-	l = log.New(f, "", log.Ltime)
-
-	l.SetOutput(f)
 
 	// Load scripts
 	l.Println("+------------------------------+")
 	l.Println(translate.CheckingLocal)
-
 	scripts, valid, deleted, modified, newOnes, err := CheckLocal(config.LocalDBFile, config.ScriptsPath)
 
 	if err != nil {
@@ -56,10 +72,9 @@ func main() {
 		}
 	}()
 
-	l.Println("[" + strconv.Itoa(int(valid)) + "] " + translate.Valid + " , " +
-		"[" + strconv.Itoa(int(deleted)) + "] " + translate.Deleted + " , " +
-		"[" + strconv.Itoa(int(modified)) + "] " + translate.Modified + " , " +
-		"[" + strconv.Itoa(int(newOnes)) + "] " + translate.NewScripts)
+		"[" + strconv.Itoa(int(deleted)) + "] Deleted , " +
+		"[" + strconv.Itoa(int(modified)) + "] Modified , " +
+		"[" + strconv.Itoa(int(newOnes)) + "] New")
 
 	// GUI
 	currentState, err := loadGUI(scripts)

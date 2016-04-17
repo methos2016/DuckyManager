@@ -9,6 +9,7 @@ func guiPrint(x, y, w int,
 	fg, bg termbox.Attribute,
 	msg string,
 ) {
+
 	for _, c := range msg {
 		if x == w {
 			termbox.SetCell(x-1, y, '→', fg, bg)
@@ -20,26 +21,33 @@ func guiPrint(x, y, w int,
 }
 
 func redrawMain(currentState State) error {
+
 	if err := termbox.Clear(coldef, coldef); err != nil {
 		return err
 	}
 
 	w, h := termbox.Size()
 	guiPrint(2, h-1, w, termbox.AttrBold, coldef, currentState.Title)
+
 	fill(0, h-2, w, 1, termbox.Cell{Ch: '─'})
 
 	sidebarDraw(w, h-2, currentState)
+
 	listScripts(w, h-2, currentState)
+
 	return termbox.Sync()
 }
 
 func listScripts(totalW, totalH int, currentState State) {
+
 
 	w := totalW * 2 / 3
 	h := totalH
 
 	x := 0
 	y := totalH - h
+
+	SortScripts(currentState.Scripts)
 
 	for i, c := currentState.PositionUpper, 0; c < h && c < len(currentState.Scripts); c++ {
 
@@ -53,7 +61,6 @@ func listScripts(totalW, totalH int, currentState State) {
 		i++
 	}
 
-	SortScripts(currentState.Scripts)
 }
 
 func sidebarDraw(totalW, totalH int, currentState State) {
@@ -108,7 +115,6 @@ func printSideInfo(x, y, w, h int,
 
 		guiPrint(currentLen, line, w, termbox.AttrBold, coldef, string(c))
 
-		l.Println(currentLen-x, w, string(c))
 
 		if currentLen-x+4 > w {
 			line++
@@ -158,7 +164,6 @@ func editableMenu(titles []string, values []*string) (err error) {
 	var currentValue = 0
 	var action = -1
 
-	l.Println(values)
 
 	for action != actionEnter {
 		eB.text = []byte(*values[currentValue])

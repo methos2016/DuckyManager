@@ -14,11 +14,6 @@ type Strings struct {
 	NoMatch       string
 	AcceptEnter   string
 
-	NewScripts string
-	Valid      string
-	Deleted    string
-	Modified   string
-
 	TermInputMode  string
 	TermOutputMode string
 
@@ -57,35 +52,30 @@ func parseLang(langFile string) error {
 	return nil
 }
 
-func checkLangs(args []string) (err error) {
-	var msgs string
+func checkLangs() (msg string) {
 
 	files, err := ioutil.ReadDir(languageDir + "/")
 	if err != nil {
-		return errors.New(" Couldn't open '" + languageDir + "' : " + err.Error())
+		msg = " Couldn't open '" + languageDir + "' : " + err.Error()
+		return
 	}
 
-	// If incorrect args, is not considered an error, but a msg will be returned.
-	if len(args) != 2 || args[1] == "" {
-		msgs += "Usage: DuckyManager <lang>\n"
-		msgs += "Your avaliable languages:\n\n"
+	msg += "Your avaliable languages:\n\n"
 
-		for _, f := range files {
-			tmpLang, err2 := ioutil.ReadFile(languageDir + "/" + f.Name())
-			if err2 != nil {
-				msgs += errStr + f.Name() + " [Could not read]\n"
+	for _, f := range files {
+		tmpLang, err2 := ioutil.ReadFile(languageDir + "/" + f.Name())
+		if err2 != nil {
+			msg += errStr + f.Name() + " [Could not read]\n"
 
-			} else if err2 = json.Unmarshal(tmpLang, &translate); err2 == nil {
-				if translate.Version == languageVer {
-					msgs += okStr + f.Name() + " [OK]\n"
-				} else {
-					msgs += errStr + f.Name() + " [Outdated]\n"
-				}
+		} else if err2 = json.Unmarshal(tmpLang, &translate); err2 == nil {
+			if translate.Version == languageVer {
+				msg += okStr + f.Name() + " [OK]\n"
 			} else {
-				msgs += errStr + f.Name() + " [Corrupted]\n"
+				msg += errStr + f.Name() + " [Outdated]\n"
 			}
+		} else {
+			msg += errStr + f.Name() + " [Corrupted]\n"
 		}
-		err = errors.New(msgs)
 	}
 
 	return

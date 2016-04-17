@@ -4,18 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"os"
 
 	"github.com/nsf/termbox-go"
 )
-
-func loadLang() (err error) {
-	if err = checkLangs(os.Args); err != nil {
-		return
-	}
-	err = parseLang(os.Args[1])
-	return
-}
 
 func loadConfig() (config Config, err error) {
 	var cf []byte
@@ -37,7 +28,6 @@ func loadGUI(scripts []Script) (currentState State, err error) {
 
 	termbox.SetInputMode(termbox.InputEsc)
 	termbox.SetOutputMode(termbox.Output256)
-	l.Println(okStr + translate.TermInputMode + ": InputESC || " + translate.TermOutputMode + ": Output256")
 
 	currentState = DefaultState(scripts)
 

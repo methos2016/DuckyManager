@@ -19,40 +19,6 @@ func clearTranslate(t *testing.T) {
 	}
 }
 
-func TestLangs(t *testing.T) {
-
-	//load languages
-	files, err := ioutil.ReadDir(languageDir + "/")
-	if err != nil {
-		t.Fatal(" Couldn't open '" + languageDir + "' : " + err.Error())
-	}
-
-	// Test incorrect len
-	if err := checkLangs([]string{"", "en", ""}); err == nil {
-		t.Error("Didn't recognize an incorrect length")
-	}
-
-	// Test correct lengths
-	for _, f := range files {
-		if err := checkLangs([]string{"", f.Name()}); err != nil {
-			t.Error("Showed an error on correct lang " + f.Name())
-			t.Log(err)
-		}
-	}
-
-	// Test incorrect lang
-	if err := parseLang(""); err == nil {
-		t.Error("Didn't recognize an incorrect language")
-	}
-
-	for _, f := range files {
-		// Test correct langs
-		if err := parseLang(f.Name()); err != nil {
-			t.Error("Showed an error on correct lang " + f.Name())
-		}
-	}
-}
-
 func TestTranslationStructUsedOnLang(t *testing.T) {
 
 	// Load languages
@@ -67,10 +33,7 @@ func TestTranslationStructUsedOnLang(t *testing.T) {
 		clearTranslate(t)
 
 		// Fill it
-		if err := checkLangs([]string{"", f.Name()}); err != nil {
-			t.Fatal(err.Error())
-			os.Exit(errExitCode)
-		}
+		checkLangs()
 
 		if err := parseLang(f.Name()); err != nil {
 			t.Fatal(err.Error())

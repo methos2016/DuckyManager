@@ -1,23 +1,23 @@
-{"Version":"0.3",
+{"Version":"0.4",
+
 "CheckingLocal":"Checking local scripts...",
-"ErrOpeningConfig":"Couldn't open the config file",
-"ErrParsingConfig":"Couldn't parse the config file",
-"ErrCheckingLocal":"Couldn't correctly check local scripts",
-"Valid":"Total valid scripts",
-"Deleted":"Deleted scripts",
-"Modified":"Modified scripts",
+"NoMatch":"No script matches that description",
+"AcceptEnter":"Press Enter to continue",
+
 "TermInputMode":"Termbox input mode",
 "TermOutputMode":"Termbox output mode",
-"Position":"Position",
-"NewScripts":"New scripts",
+
 "SidebarTitle":"Title",
 "SidebarBy":"By",
 "SidebarTags":"Tags",
 "SidebarDesc":"Description",
+
+"ErrOpeningConfig":"Couldn't open the config file",
+"ErrParsingConfig":"Couldn't parse the config file",
+"ErrCheckingLocal":"Couldn't correctly check local scripts",
+"ErrPickingFunc":"Error while picking function from key stroke",
+"ErrSavingDB":"Error while saving changes to the database",
 "ErrTermboxInit":"Error while initiating Termbox",
 "ErrDrawing":"Error while drawing on the screen",
-"ErrEvent":"Event error",
-"NoMatch":"No script matches that description",
-"AcceptEnter":"Press Enter to continue",
-"ErrPickingFunc":"Error while picking function from key stroke",
-"ErrSavingDB":"Error while saving changes to the database"}
+"ErrEvent":"Event error"
+}

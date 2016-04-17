@@ -36,6 +36,7 @@ func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 		return
 	}
 
+
 	for _, f := range files {
 		isNew := true
 		for _, script := range *scripts {
@@ -56,6 +57,7 @@ func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 			*scripts = append(*scripts, Script{
 				Path: path + "/" + f.Name(),
 				Hash: h})
+
 		}
 	}
 
@@ -65,8 +67,10 @@ func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 // CheckChanged will report any changes to the scripts.
 // That is, which ones got deleted, modified and the total number of valid ones (not deleted)
 func CheckChanged(scripts []Script) (deleted, modified, totalValid uint) {
+
 	for i, script := range scripts {
 		fE, hE, hash := script.CheckIntegrity()
+
 		if fE {
 			deleted++
 			scripts = append(scripts[:i], scripts[i+1:]...)
@@ -88,10 +92,12 @@ func CreateNewDatabase(path string) (f []byte, err error) {
 	if err != nil {
 		return nil, err
 	}
+
 	_, err = f2.WriteString("[{}]")
 	if err != nil {
 		return nil, err
 	}
+
 	err = f2.Close()
 	if err != nil {
 		return nil, err
@@ -134,7 +140,6 @@ func CheckLocal(path, scriptsPath string) (
 		return
 	}
 
-	// Check database integrity
 	deleted, modified, totalValid = CheckChanged(scripts)
 
 	newOnes, err = SearchNewLocal(scriptsPath, &scripts)
@@ -143,7 +148,6 @@ func CheckLocal(path, scriptsPath string) (
 	}
 
 	totalValid += newOnes
-
 	err = Save(path, scripts)
 
 	return
@@ -152,6 +156,7 @@ func CheckLocal(path, scriptsPath string) (
 // HashFile will hash a file and return the hexsum
 func HashFile(path string) (h string, err error) {
 	var result []byte
+
 	file, err := os.Open(path)
 	if err != nil {
 		return
@@ -180,6 +185,7 @@ func (s *Script) GetName() string {
 
 // CheckIntegrity will load the file from the path and check it against known data.
 func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
+
 	h, err := HashFile(s.Path)
 	if err == nil {
 		fileErr = false
@@ -193,6 +199,7 @@ func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 		hashEq = false
 	}
 
+
 	return
 }
 
@@ -201,15 +208,18 @@ func (s *Script) Equals(s2 Script) bool { return s.Hash == s2.Hash }
 
 // Save will save the data to the json database
 func Save(path string, scripts []Script) (err error) {
+
 	b, err := json.Marshal(scripts)
 	if err != nil {
 		return
 	}
+
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
 	if err != nil {
 		return
 	}
 	defer func() { err = f.Close() }()
+
 	if _, err = f.Write(b); err != nil {
 		return
 	}
@@ -231,12 +241,15 @@ func (s Scripts) Less(i, j int) bool { return s[i].GetName() < s[j].GetName() }
 // SortScripts sorts the slice based on name and path
 func SortScripts(scripts Scripts) { sort.Sort(scripts) }
 
+// TODO Maybe fix all these duplicated functions
+
 // ListByName will return all scripts which contains the name on it
 // An empty string is interpreted as "any".
 // This function IS NOT case sensitive.
 func ListByName(scripts []Script, name string) (matches []Script) {
+
 	for _, script := range scripts {
-		if strings.Contains(strings.ToLower(script.Name), strings.ToLower(name)) {
+		if strings.Contains(strings.ToLower(script.GetName()), strings.ToLower(name)) {
 			matches = append(matches, script)
 		}
 	}
@@ -247,6 +260,7 @@ func ListByName(scripts []Script, name string) (matches []Script) {
 // An empty string is interpreted as "any".
 // This function IS NOT case sensitive.
 func ListByUser(scripts []Script, user string) (matches []Script) {
+
 	for _, script := range scripts {
 		if strings.Contains(strings.ToLower(script.User), strings.ToLower(user)) {
 			matches = append(matches, script)
@@ -259,6 +273,7 @@ func ListByUser(scripts []Script, user string) (matches []Script) {
 // An empty string is interpreted as "any".
 // This function IS NOT case sensitive.
 func ListByTags(scripts []Script, inTag string) (matches []Script) {
+
 	for _, script := range scripts {
 		if strings.Contains(strings.ToLower(script.Tags), strings.ToLower(inTag)) {
 			matches = append(matches, script)
@@ -272,6 +287,7 @@ func ListByTags(scripts []Script, inTag string) (matches []Script) {
 // An empty string is interpreted as "any".
 // This function IS NOT case sensitive.
 func ListByDesc(scripts []Script, desc string) (matches []Script) {
+
 	for _, script := range scripts {
 		if strings.Contains(strings.ToLower(script.Desc), strings.ToLower(desc)) {
 			matches = append(matches, script)
@@ -285,6 +301,7 @@ func ListByDesc(scripts []Script, desc string) (matches []Script) {
 func TrimRepeated(scripts []Script) (valid []Script) {
 
 	for _, s := range scripts {
+
 		eq := false
 		for _, v := range valid {
 			if s.Equals(v) {
