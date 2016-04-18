@@ -11,7 +11,9 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
-// TODO Fill this with logs, use the correct err/ok str and set size limit for logs
+// TODO Create debug lines (logs)
+// TODO Script editor with syntax
+// TODO Remote managing (of official repo), able to download
 
 func main() {
 	// Debug flag
@@ -72,9 +74,10 @@ func main() {
 		}
 	}()
 
-		"[" + strconv.Itoa(int(deleted)) + "] Deleted , " +
+	l.Println("[" + strconv.Itoa(int(deleted)) + "] Deleted , " +
 		"[" + strconv.Itoa(int(modified)) + "] Modified , " +
-		"[" + strconv.Itoa(int(newOnes)) + "] New")
+		"[" + strconv.Itoa(int(newOnes)) + "] New , " +
+		"[" + strconv.Itoa(int(valid)) + "] Valid")
 
 	// GUI
 	currentState, err := loadGUI(scripts)

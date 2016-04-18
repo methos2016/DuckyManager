@@ -4,9 +4,6 @@
 "NoMatch":"No script matches that description",
 "AcceptEnter":"Press Enter to continue",
 
-"TermInputMode":"Termbox input mode",
-"TermOutputMode":"Termbox output mode",
-
 "SidebarTitle":"Title",
 "SidebarBy":"By",
 "SidebarTags":"Tags",

@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 )
 
+// TODO Spanish translation
+
 // Strings holds each and every string on the program, allowing for easy translation
 type Strings struct {
 	Version string
@@ -13,9 +15,6 @@ type Strings struct {
 	CheckingLocal string
 	NoMatch       string
 	AcceptEnter   string
-
-	TermInputMode  string
-	TermOutputMode string
 
 	SidebarTitle string
 	SidebarBy    string

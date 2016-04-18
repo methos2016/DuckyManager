@@ -17,9 +17,9 @@ const (
 	languageDir = "language"
 	configFile  = "config.json"
 
-	errStr  = "[-] "
-	okStr   = "[+] "
-	infoStr = "[i] "
+	errStr = "[-] "
+	okStr  = "[+] "
+	//infoStr = "[i] "
 
 	errExitCode = -1
 )

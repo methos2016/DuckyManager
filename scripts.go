@@ -13,6 +13,11 @@ import (
 
 // Script holds all the data from a script
 type Script struct {
+	// Version holds the version of the script
+	Version string
+	// RemotePath holds the online path to the script
+	RemotePath string
+
 	// Path holds the path to the script
 	Path string
 	// Name holds the name of the script
@@ -23,8 +28,11 @@ type Script struct {
 	Tags string
 	// User saves the creator's name/nick
 	User string
-	//Hash holds a md5 of the last known state of the script
+	// Hash holds a md5 of the last known state of the script
 	Hash string
+
+	// Remote indicates if the script is currently placed at a remote repository or local
+	Remote bool
 }
 
 // SearchNewLocal will search on the path for valid scripts and load them onto the already loaded scripts.
@@ -35,7 +43,6 @@ func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 	if err != nil {
 		return
 	}
-
 
 	for _, f := range files {
 		isNew := true
@@ -199,7 +206,6 @@ func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 		hashEq = false
 	}
 
-
 	return
 }
 
@@ -240,8 +246,6 @@ func (s Scripts) Less(i, j int) bool { return s[i].GetName() < s[j].GetName() }
 
 // SortScripts sorts the slice based on name and path
 func SortScripts(scripts Scripts) { sort.Sort(scripts) }
-
-// TODO Maybe fix all these duplicated functions
 
 // ListByName will return all scripts which contains the name on it
 // An empty string is interpreted as "any".
