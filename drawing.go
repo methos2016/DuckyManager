@@ -5,6 +5,19 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+func loadGUI(scripts []Script) (currentState State, err error) {
+	if err = termbox.Init(); err != nil {
+		return State{}, err
+	}
+
+	termbox.SetInputMode(termbox.InputEsc)
+	termbox.SetOutputMode(termbox.Output256)
+
+	currentState = DefaultState(scripts)
+
+	return
+}
+
 func guiPrint(x, y, w int,
 	fg, bg termbox.Attribute,
 	msg string,
@@ -39,7 +52,6 @@ func redrawMain(currentState State) error {
 }
 
 func listScripts(totalW, totalH int, currentState State) {
-
 
 	w := totalW * 2 / 3
 	h := totalH
@@ -86,7 +98,10 @@ func sidebarDraw(totalW, totalH int, currentState State) {
 	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarTags, currentState.GetCurrentScript().Tags)
 
 	// Desc
-	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, currentState.GetCurrentScript().Desc)
+	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, currentState.GetCurrentScript().Desc)
+
+	// Version
+	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarVer, currentState.GetCurrentScript().Version)
 }
 
 func printSideInfo(x, y, w, h int,
@@ -114,7 +129,6 @@ func printSideInfo(x, y, w, h int,
 		}
 
 		guiPrint(currentLen, line, w, termbox.AttrBold, coldef, string(c))
-
 
 		if currentLen-x+4 > w {
 			line++
@@ -163,7 +177,6 @@ func editableMenu(titles []string, values []*string) (err error) {
 	var eB editBox
 	var currentValue = 0
 	var action = -1
-
 
 	for action != actionEnter {
 		eB.text = []byte(*values[currentValue])

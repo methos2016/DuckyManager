@@ -1,3 +1,7 @@
 {"ScriptsPath":"/Path/To/Your/Scripts/Folder",
  "LocalDBFile":"./local.json",
- "LogFile":"./duck.log"}
+ "LogFile":"./duck.log",
+ "Repositories": [
+ 	{"Repo":"DarkAnHell"}
+	]
+}

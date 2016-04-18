@@ -11,9 +11,14 @@ import (
 	"strings"
 )
 
+// TODO repos:
+// Al iniciar comprueba si hay nuevos y actualiza los datos.
+// Añadir flag --no-online
+// Añadir comando para actualizar manualmente
+
 // Script holds all the data from a script
 type Script struct {
-	// Version holds the version of the script
+	// Version holds the version (date) of the script
 	Version string
 	// RemotePath holds the online path to the script
 	RemotePath string
@@ -217,27 +222,6 @@ func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 
 // Equals will check if the scripts are the same object
 func (s *Script) Equals(s2 Script) bool { return s.Hash == s2.Hash }
-
-// Save will save the data to the json database
-func Save(path string, scripts []Script) (err error) {
-
-	b, err := json.Marshal(scripts)
-	if err != nil {
-		return
-	}
-
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
-	if err != nil {
-		return
-	}
-	defer func() { err = f.Close() }()
-
-	if _, err = f.Write(b); err != nil {
-		return
-	}
-
-	return
-}
 
 /*** SORT FUNCTIONS ***/
 

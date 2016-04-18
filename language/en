@@ -1,4 +1,4 @@
-{"Version":"0.4",
+{"Version":"0.6",
 
 "CheckingLocal":"Checking local scripts...",
 "NoMatch":"No script matches that description",
@@ -8,12 +8,14 @@
 "SidebarBy":"By",
 "SidebarTags":"Tags",
 "SidebarDesc":"Description",
+"SidebarVer":"Version",
 
 "ErrOpeningConfig":"Couldn't open the config file",
 "ErrParsingConfig":"Couldn't parse the config file",
 "ErrCheckingLocal":"Couldn't correctly check local scripts",
 "ErrPickingFunc":"Error while picking function from key stroke",
 "ErrSavingDB":"Error while saving changes to the database",
+"ErrSavingConfig":"Error while saving changes to the config file",
 "ErrTermboxInit":"Error while initiating Termbox",
 "ErrDrawing":"Error while drawing on the screen",
 "ErrEvent":"Event error"

@@ -13,7 +13,6 @@ import (
 
 // TODO Create debug lines (logs)
 // TODO Script editor with syntax
-// TODO Remote managing (of official repo), able to download
 
 func main() {
 	// Debug flag
@@ -34,7 +33,7 @@ func main() {
 	}
 
 	// Load config
-	config, err := loadConfig()
+	config, err := LoadConfig()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(errExitCode)
@@ -66,12 +65,18 @@ func main() {
 		os.Exit(errExitCode)
 	}
 
-	// make sure we save any changes to the DB
+	// make sure we save any changes to the DB and the config file
 	defer func() {
 		if err = Save(config.LocalDBFile, scripts); err != nil {
 			l.Println(translate.ErrSavingDB + ": " + err.Error())
 			fmt.Println(translate.ErrSavingDB + ": " + err.Error())
 		}
+
+		if err = Save(configFile, config); err != nil {
+			l.Println(translate.ErrSavingConfig + ": " + err.Error())
+			fmt.Println(translate.ErrSavingConfig + ": " + err.Error())
+		}
+
 	}()
 
 	l.Println("[" + strconv.Itoa(int(deleted)) + "] Deleted , " +

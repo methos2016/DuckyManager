@@ -20,12 +20,14 @@ type Strings struct {
 	SidebarBy    string
 	SidebarTags  string
 	SidebarDesc  string
+	SidebarVer   string
 
 	ErrOpeningConfig string
 	ErrParsingConfig string
 	ErrCheckingLocal string
 	ErrPickingFunc   string
 	ErrSavingDB      string
+	ErrSavingConfig  string
 	ErrTermboxInit   string
 	ErrDrawing       string
 	ErrEvent         string
