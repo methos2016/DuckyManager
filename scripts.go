@@ -191,7 +191,13 @@ func (s *Script) GetName() string {
 }
 
 // CheckIntegrity will load the file from the path and check it against known data.
+// It will also check if it's empty, and remove it if so
 func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
+
+	if s.Path == "" {
+		fileErr = true
+		return
+	}
 
 	h, err := HashFile(s.Path)
 	if err == nil {
