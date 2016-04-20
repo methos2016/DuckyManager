@@ -1,6 +1,9 @@
 package main
 
-import "log"
+import (
+	"log"
+	"time"
+)
 
 var (
 	translate Strings
@@ -20,6 +23,8 @@ const (
 	errStr = "[-] "
 	okStr  = "[+] "
 	//infoStr = "[i] "
+
+	githubRFC = time.RFC3339 // Close RFC as the defined by github's API
 
 	errExitCode = -1
 )

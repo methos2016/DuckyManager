@@ -16,8 +16,10 @@ import (
 
 func main() {
 	// Debug flag
+	// TODO Translate flags
 	flag.BoolVar(&debug, "debug", false, "Activates debug output to logs. Meant for bug fixing/reports")
 	flag.StringVar(&lang, "lang", "en", "Sets the language for the program")
+	var noOnline = flag.Bool("offline", false, "Deactivates online repositories. They'll be listed but not updated, nor interacted with")
 	var checkLang = flag.Bool("sanity", false, "Sanity checks installed languages")
 	flag.Parse()
 
@@ -59,25 +61,41 @@ func main() {
 	l.Println(translate.CheckingLocal)
 	scripts, valid, deleted, modified, newOnes, err := CheckLocal(config.LocalDBFile, config.ScriptsPath)
 
-	if err != nil {
-		fmt.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
-		l.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
-		os.Exit(errExitCode)
+	if !*noOnline {
+		// Check all repositories at the same time
+		c := make(chan Scripts)
+		for _, rep := range config.Repositories {
+			go func(ch chan Scripts, rep Repository) {
+				s, err2 := rep.GetUpdates()
+
+				// TODO translate err to log
+				if err2 != nil {
+					fmt.Println(errStr + err2.Error())
+					l.Println(errStr + err2.Error())
+					os.Exit(errExitCode)
+				}
+
+				ch <- s
+
+			}(c, rep)
+		}
+
+		l.Println("Waiting for data")
+
+		// Get all new scripts and add them
+		for i := 1; i == len(config.Repositories); i++ {
+			newScripts := <-c
+			scripts = append(scripts, newScripts...)
+		}
+
+		if err != nil {
+			fmt.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
+			l.Println(errStr + translate.ErrCheckingLocal + " : " + err.Error())
+			os.Exit(errExitCode)
+		}
 	}
 
-	// make sure we save any changes to the DB and the config file
-	defer func() {
-		if err = Save(config.LocalDBFile, scripts); err != nil {
-			l.Println(translate.ErrSavingDB + ": " + err.Error())
-			fmt.Println(translate.ErrSavingDB + ": " + err.Error())
-		}
-
-		if err = Save(configFile, config); err != nil {
-			l.Println(translate.ErrSavingConfig + ": " + err.Error())
-			fmt.Println(translate.ErrSavingConfig + ": " + err.Error())
-		}
-
-	}()
+	scripts = TrimRepeated(scripts)
 
 	l.Println("[" + strconv.Itoa(int(deleted)) + "] Deleted , " +
 		"[" + strconv.Itoa(int(modified)) + "] Modified , " +
@@ -94,6 +112,19 @@ func main() {
 	defer termbox.Close()
 
 	mainLoop(currentState)
+
+	// make sure we save any changes to the DB and the config file
+
+	if err = Save(config.LocalDBFile, currentState.Scripts); err != nil {
+		l.Println(translate.ErrSavingDB + ": " + err.Error())
+		fmt.Println(translate.ErrSavingDB + ": " + err.Error())
+	}
+
+	if err = Save(configFile, config); err != nil {
+		l.Println(translate.ErrSavingConfig + ": " + err.Error())
+		fmt.Println(translate.ErrSavingConfig + ": " + err.Error())
+	}
+
 }
 
 func mainLoop(currentState State) {

@@ -98,10 +98,7 @@ func sidebarDraw(totalW, totalH int, currentState State) {
 	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarTags, currentState.GetCurrentScript().Tags)
 
 	// Desc
-	lines = printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, currentState.GetCurrentScript().Desc)
-
-	// Version
-	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarVer, currentState.GetCurrentScript().Version)
+	printSideInfo(x+2, y+2+lines, w, h, translate.SidebarDesc, currentState.GetCurrentScript().Desc)
 }
 
 func printSideInfo(x, y, w, h int,

@@ -20,7 +20,6 @@ type Strings struct {
 	SidebarBy    string
 	SidebarTags  string
 	SidebarDesc  string
-	SidebarVer   string
 
 	ErrOpeningConfig string
 	ErrParsingConfig string

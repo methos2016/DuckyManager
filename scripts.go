@@ -11,17 +11,12 @@ import (
 	"strings"
 )
 
-// TODO repos:
-// Al iniciar comprueba si hay nuevos y actualiza los datos.
-// Añadir flag --no-online
-// Añadir comando para actualizar manualmente
-
 // Script holds all the data from a script
 type Script struct {
-	// Version holds the version (date) of the script
-	Version string
 	// RemotePath holds the online path to the script
 	RemotePath string
+	// ID is the unique id of the script
+	ID string
 
 	// Path holds the path to the script
 	Path string
@@ -78,20 +73,23 @@ func SearchNewLocal(path string, scripts *[]Script) (count uint, err error) {
 
 // CheckChanged will report any changes to the scripts.
 // That is, which ones got deleted, modified and the total number of valid ones (not deleted)
-func CheckChanged(scripts []Script) (deleted, modified, totalValid uint) {
+func CheckLocalChanged(scripts []Script) (deleted, modified, totalValid uint) {
 
 	for i, script := range scripts {
-		fE, hE, hash := script.CheckIntegrity()
+		// Only checks local scripts
+		if !script.Remote {
+			fE, hE, hash := script.CheckIntegrity()
 
-		if fE {
-			deleted++
-			scripts = append(scripts[:i], scripts[i+1:]...)
-		} else if !hE {
-			scripts[i].Hash = hash
-			modified++
-			totalValid++
-		} else {
-			totalValid++
+			if fE {
+				deleted++
+				scripts = append(scripts[:i], scripts[i+1:]...)
+			} else if !hE {
+				scripts[i].Hash = hash
+				modified++
+				totalValid++
+			} else {
+				totalValid++
+			}
 		}
 	}
 	return
@@ -152,7 +150,7 @@ func CheckLocal(path, scriptsPath string) (
 		return
 	}
 
-	deleted, modified, totalValid = CheckChanged(scripts)
+	deleted, modified, totalValid = CheckLocalChanged(scripts)
 
 	newOnes, err = SearchNewLocal(scriptsPath, &scripts)
 	if err != nil {
@@ -221,7 +219,9 @@ func (s *Script) CheckIntegrity() (fileErr, hashEq bool, h string) {
 }
 
 // Equals will check if the scripts are the same object
-func (s *Script) Equals(s2 Script) bool { return s.Hash == s2.Hash }
+func (s *Script) Equals(s2 Script) bool {
+	return s.ID == s2.ID || s.Hash == s2.Hash
+}
 
 /*** SORT FUNCTIONS ***/
 
