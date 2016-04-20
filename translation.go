@@ -21,15 +21,23 @@ type Strings struct {
 	SidebarTags  string
 	SidebarDesc  string
 
-	ErrOpeningConfig string
-	ErrParsingConfig string
-	ErrCheckingLocal string
-	ErrPickingFunc   string
-	ErrSavingDB      string
-	ErrSavingConfig  string
-	ErrTermboxInit   string
-	ErrDrawing       string
-	ErrEvent         string
+	ErrOpeningConfig    string
+	ErrParsingConfig    string
+	ErrCheckingLocal    string
+	ErrPickingFunc      string
+	ErrSavingDB         string
+	ErrSavingConfig     string
+	ErrTermboxInit      string
+	ErrDrawing          string
+	ErrEvent            string
+	ErrAddSecond        string
+	ErrBodyRead         string
+	ErrGithubResponse   string
+	ErrGithubJSONParse  string
+	ErrScriptGeneration string
+	ErrUpdatingOnline   string
+
+	NoticeScriptJSONParse string
 }
 
 // Meant to be called on init

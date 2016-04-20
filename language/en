@@ -17,5 +17,12 @@
 "ErrSavingConfig":"Error while saving changes to the config file",
 "ErrTermboxInit":"Error while initiating Termbox",
 "ErrDrawing":"Error while drawing on the screen",
-"ErrEvent":"Event error"
+"ErrEvent":"Event error",
+"ErrAddSecond":"Error when adding a second to update date",
+"ErrBodyRead":"Error while reading the body of github's response",
+"ErrGithubResponse":"Error when trying to get Github's response",
+"ErrGithubJSONParse":"Error when trying to parse Github's JSON response",
+"ErrScriptGeneration":"Error when generating script from data",
+"ErrUpdatingOnline":"Error while updaing from online repository",
+"NoticeScriptJSONParse":"Warning: Gist retrieved couldn't be parsed. Maybe it's not a script; Ignoring."
 }

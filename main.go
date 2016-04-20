@@ -16,7 +16,6 @@ import (
 
 func main() {
 	// Debug flag
-	// TODO Translate flags
 	flag.BoolVar(&debug, "debug", false, "Activates debug output to logs. Meant for bug fixing/reports")
 	flag.StringVar(&lang, "lang", "en", "Sets the language for the program")
 	var noOnline = flag.Bool("offline", false, "Deactivates online repositories. They'll be listed but not updated, nor interacted with")
@@ -61,6 +60,8 @@ func main() {
 	l.Println(translate.CheckingLocal)
 	scripts, valid, deleted, modified, newOnes, err := CheckLocal(config.LocalDBFile, config.ScriptsPath)
 
+	// TODO counter to show progress to user
+
 	if !*noOnline {
 		// Check all repositories at the same time
 		c := make(chan Scripts)
@@ -68,10 +69,9 @@ func main() {
 			go func(ch chan Scripts, rep Repository) {
 				s, err2 := rep.GetUpdates()
 
-				// TODO translate err to log
 				if err2 != nil {
-					fmt.Println(errStr + err2.Error())
-					l.Println(errStr + err2.Error())
+					fmt.Println(errStr + translate.ErrUpdatingOnline + " [" + rep.Repo + "]: " + err2.Error())
+					l.Println(errStr + translate.ErrUpdatingOnline + " [" + rep.Repo + "]: " + err2.Error())
 					os.Exit(errExitCode)
 				}
 
@@ -79,8 +79,6 @@ func main() {
 
 			}(c, rep)
 		}
-
-		l.Println("Waiting for data")
 
 		// Get all new scripts and add them
 		for i := 1; i == len(config.Repositories); i++ {
@@ -97,6 +95,7 @@ func main() {
 
 	scripts = TrimRepeated(scripts)
 
+	// TODO list online ones here too
 	l.Println("[" + strconv.Itoa(int(deleted)) + "] Deleted , " +
 		"[" + strconv.Itoa(int(modified)) + "] Modified , " +
 		"[" + strconv.Itoa(int(newOnes)) + "] New , " +

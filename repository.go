@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -31,9 +33,8 @@ func (r *Repository) GetUpdates() (newScripts Scripts, err error) {
 	if r.LastUpdateScripts != "" {
 		var t string
 		t, err = AddOneSecond(r.LastUpdateScripts)
-
 		if err != nil {
-			return newScripts, err //TODO return translated error
+			return newScripts, errors.New(translate.ErrAddSecond + ": " + err.Error())
 		}
 
 		trailing = "?since=" + t
@@ -44,32 +45,41 @@ func (r *Repository) GetUpdates() (newScripts Scripts, err error) {
 
 	response, err := http.Get("https://api.github.com/users/" + r.Repo + "/gists" + trailing)
 
+	if err != nil {
+		return newScripts, errors.New(translate.ErrGithubResponse + ": " + err.Error())
+	}
+
 	if err == nil {
 		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
 
 		if err != nil {
-			return newScripts, err // TODO return translated error
+			return newScripts, errors.New(translate.ErrBodyRead + ": " + err.Error())
 		}
 
 		// Parse JSON
 		var bunchOfData []RepoDataGithub
 
 		if err := json.Unmarshal(contents, &bunchOfData); err != nil {
-			return newScripts, err // TODO return translated error
+			return newScripts, errors.New(translate.ErrGithubJSONParse + ": " + err.Error())
 		}
 
 		// GET ALL THE SCRIPTS!!!
 		for _, s := range bunchOfData {
 			script, err := generateScriptFromData(s)
-			if err != nil {
-				return newScripts, err // TODO return translated error
+
+			// We ignore JSON parsing errors, since they will be - most likely - gists other than scripts
+			// Nontheless, we log them, just in case
+			if err != nil && strings.Contains(err.Error(), translate.NoticeScriptJSONParse) {
+				l.Println(err)
+			} else if err != nil {
+				return newScripts, errors.New(translate.ErrScriptGeneration + ": " + err.Error())
 			}
 
 			newScripts = append(newScripts, script)
 		}
 	}
-	l.Println(time.Now().UTC().Format("2006-01-02T15:04:05-0700"))
+
 	// Save time of last update
 	r.LastUpdateScripts = time.Now().UTC().Format("2006-01-02T15:04:05-0700")
 
@@ -81,7 +91,7 @@ func generateScriptFromData(data RepoDataGithub) (s Script, err error) {
 
 	// Assign data from description
 	if err := json.Unmarshal([]byte(data.Desc), &s); err != nil {
-		return s, err // TODO return translated error
+		return s, errors.New(translate.NoticeScriptJSONParse + ": " + err.Error())
 	}
 
 	// Get remote URL from file info
